@@ -15,7 +15,7 @@ export default defineConfig({
 				{
 					label: 'Getting Started',
 					items: [
-						{ label: 'Platform Overview', slug: 'getting-started/overview' },
+						// { label: 'Platform Overview', slug: 'getting-started/overview' },
 						{ label: 'Key Concepts', slug: 'getting-started/key-concepts' },
 						{ label: 'Your First Client', slug: 'getting-started/your-first-client' },
 					],
@@ -41,32 +41,32 @@ export default defineConfig({
 						{ label: 'Pitch Agent', slug: 'agents/pitch-agent' },
 					],
 				},
-				{
-					label: 'Pitch Formula',
-					items: [
-						{ label: 'The 7-Slide Formula', slug: 'pitch-formula/seven-slides' },
-						{ label: 'Brand System', slug: 'pitch-formula/brand-system' },
-						{ label: 'Positioning Rules', slug: 'pitch-formula/positioning-rules' },
-					],
-				},
-				{
-					label: 'Architecture',
-					items: [
-						{ label: 'System Design', slug: 'architecture/system-design' },
-						{ label: 'CMS Schema', slug: 'architecture/cms-schema' },
-						{ label: 'Generation Pipeline', slug: 'architecture/generation-pipeline' },
-						{ label: 'URL Structure', slug: 'architecture/url-structure' },
-					],
-				},
-				{
-					label: 'Operations',
-					items: [
-						{ label: 'New Site Setup', slug: 'operations/new-site-setup' },
-						{ label: 'Environment Config', slug: 'operations/environment-config' },
-						{ label: 'Deployment', slug: 'operations/deployment' },
-						{ label: 'Troubleshooting', slug: 'operations/troubleshooting' },
-					],
-				},
+				// {
+				// 	label: 'Pitch Formula',
+				// 	items: [
+				// 		{ label: 'The 7-Slide Formula', slug: 'pitch-formula/seven-slides' },
+				// 		{ label: 'Brand System', slug: 'pitch-formula/brand-system' },
+				// 		{ label: 'Positioning Rules', slug: 'pitch-formula/positioning-rules' },
+				// 	],
+				// },
+				// {
+				// 	label: 'Architecture',
+				// 	items: [
+				// 		{ label: 'System Design', slug: 'architecture/system-design' },
+				// 		{ label: 'CMS Schema', slug: 'architecture/cms-schema' },
+				// 		{ label: 'Generation Pipeline', slug: 'architecture/generation-pipeline' },
+				// 		{ label: 'URL Structure', slug: 'architecture/url-structure' },
+				// 	],
+				// },
+				// {
+				// 	label: 'Operations',
+				// 	items: [
+				// 		{ label: 'New Site Setup', slug: 'operations/new-site-setup' },
+				// 		{ label: 'Environment Config', slug: 'operations/environment-config' },
+				// 		{ label: 'Deployment', slug: 'operations/deployment' },
+				// 		{ label: 'Troubleshooting', slug: 'operations/troubleshooting' },
+				// 	],
+				// },
 			],
 		}),
 	],
