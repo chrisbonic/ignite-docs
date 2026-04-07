@@ -1,9 +1,14 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import cloudflare from '@astrojs/cloudflare';
 
 // https://astro.build/config
 export default defineConfig({
+	output: 'server',
+	adapter: cloudflare(),
+	base: process.env.NODE_ENV === 'production' ? 'CLOUD_MOUNT_PATH' : '/',
+	security: { checkOrigin: false },
 	integrations: [
 		starlight({
 			title: 'Ignite Studio',
