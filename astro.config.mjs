@@ -13,6 +13,9 @@ export default defineConfig({
 		starlight({
 			title: 'Ignite Studio',
 			description: 'Platform guide for the Ignite Studio pitch delivery system.',
+			head: [
+				{ tag: 'meta', attrs: { name: 'robots', content: 'noindex, nofollow' } },
+			],
 			social: [
 				{ icon: 'github', label: 'GitHub', href: 'https://github.com/chrisbonic/ignite-docs' },
 			],
