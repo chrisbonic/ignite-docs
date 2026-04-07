@@ -8,7 +8,6 @@ export default defineConfig({
 	output: 'server',
 	adapter: cloudflare(),
 	base: process.env.NODE_ENV === 'production' ? 'CLOUD_MOUNT_PATH' : '/',
-	security: { checkOrigin: false },
 	integrations: [
 		starlight({
 			title: 'Ignite Studio',
