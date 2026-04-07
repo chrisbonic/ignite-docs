@@ -1,0 +1,101 @@
+---
+title: Troubleshooting
+description: Common errors and how to fix them.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## Webflow Cloud Build Errors
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `webflow.json is not present` | Directory path set during project creation | Recreate the Webflow Cloud project with an empty Directory path |
+| `Cannot find package 'react-dom'` | Missing React peer deps | `npm install react react-dom @astrojs/react` |
+| `fileURLToPath` / `node:fs` crash | Node.js APIs in runtime code | Replace all `node:` imports with in-memory alternatives |
+| `The "path" argument must be of type string` | `node:url` in worker bundle | Remove `node:url` imports from `src/` |
+| Build uses stale commit | Webflow Cloud cache | Click "Deploy latest commit" button in Webflow Cloud settings |
+
+## URL Issues
+
+### Double `/c/c/` in URLs
+
+**Cause**: Route files include the mount prefix in their path.
+
+**Fix**: Routes at `src/pages/[clientToken]/p/[slug].astro`, NOT `src/pages/c/[clientToken]/p/[slug].astro`. The mount path is added automatically.
+
+### Pages 404 on Webflow Cloud but work locally
+
+**Cause**: Usually the double-prefix issue above, or base path misconfiguration.
+
+**Fix**: Verify `base: 'CLOUD_MOUNT_PATH'` in astro config (literal string, not a variable).
+
+## CMS Issues
+
+### Slug collision on item creation
+
+**Cause**: Webflow retains deleted slugs as tombstones. Re-creating an item with the same slug fails.
+
+**Fix**: Always use randomly generated slugs. If you hit this after a CMS reset, republish the Webflow site to clear tombstones.
+
+### Option field writes fail
+
+**Cause**: Option IDs are site-specific. Using IDs from a different site.
+
+**Fix**: Option IDs are resolved at runtime via `webflow-options.ts`. Ensure the correct `WEBFLOW_SITE_ID` is set. When writing, pass option **names** (e.g., `"active"`), not hash IDs.
+
+### Items won't publish
+
+**Cause**: The Webflow site itself hasn't been published yet.
+
+**Fix**: Publish the site first (`POST /v2/sites/{siteId}/publish`), wait a few seconds, then retry publishing items. The app handles retries automatically (3 attempts with 3s, 5s, 8s delays).
+
+## Streaming / SSE Issues
+
+### AI generation hangs or times out
+
+**Cause**: Cloudflare Workers kill idle connections after ~30 seconds.
+
+**Fix**: All AI endpoints must use SSE streaming with 2-second keepalive heartbeats. Check that the endpoint returns `text/event-stream` and sends heartbeat comments.
+
+### Garbled or incomplete SSE data
+
+**Cause**: Cloudflare splits TCP chunks mid-line.
+
+**Fix**: Client-side code must buffer incomplete lines across chunks (lineBuffer pattern). Never split on `\n` per-chunk - accumulate into a buffer and only process complete lines.
+
+## Compute Service Issues
+
+### Pitch Agent jobs not updating
+
+**Cause**: In-memory cache doesn't persist across Vercel function invocations.
+
+**Fix**: Always read job status from KV (Redis) first, never trust in-memory cache for polling endpoints. The compute service's job store uses KV as the source of truth.
+
+### CORS errors from admin to compute
+
+**Cause**: Admin origin not in the `ALLOWED_ORIGINS` env var on the compute service.
+
+**Fix**: Add the admin's full origin (e.g., `https://your-site.webflow.io`) to the compute service's `ALLOWED_ORIGINS` variable.
+
+### Jobs created but pipeline doesn't run
+
+**Cause**: `waitUntil()` not available or auth token mismatch.
+
+**Fix**: Verify `AGENT_COMPUTE_SECRET` matches between admin and compute. Check Vercel function logs for auth errors.
+
+## Local Development Issues
+
+### Admin can't connect to pitch site
+
+Local dev uses different ports and no mount paths:
+- Admin: `localhost:4322`
+- Site: `localhost:4321`
+- Set `SITE_URL=http://localhost:4321` in admin's `.env` (no `/c`)
+
+### Environment variables not loading
+
+On Cloudflare Workers, env vars are in `context.locals.runtime.env`, not `process.env`. The middleware copies them. Locally, `process.env` works normally via `.env` files.
+
+<Aside type="tip">
+When debugging, always check the Webflow Cloud build logs (accessible from the Webflow Cloud dashboard) and Vercel function logs (from the Vercel dashboard). Most issues are visible in the logs.
+</Aside>

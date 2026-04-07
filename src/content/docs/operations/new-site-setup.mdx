@@ -1,0 +1,96 @@
+---
+title: New Site Setup
+description: Step-by-step runbook for setting up the Ignite Pitch Engine on a new Webflow site.
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components';
+
+This runbook covers setting up the platform on a new Webflow site from scratch.
+
+## Prerequisites
+
+- Webflow site created (get the Site ID from Site Settings > General)
+- Webflow API token with CMS read/write access
+- All three repos available: `site/`, `admin/`, `compute/`
+- Compute service deployed (shared across all environments)
+
+## Setup Steps
+
+<Steps>
+
+1. **Create CMS Collections**
+
+   Create 4 collections via the Webflow API. Order matters - Clients must be first since Ideas and Pages reference it.
+
+   Collections to create:
+   - **Clients** (singular: "Client")
+   - **Ideas** (singular: "Idea")
+   - **Pages** (singular: "Page")
+   - **Partners** (singular: "Partner")
+
+   Record all 4 collection IDs from the API responses.
+
+2. **Add Fields to Collections**
+
+   Each collection needs specific fields. See the [CMS Schema](/architecture/cms-schema/) for the complete field list.
+
+   Key field counts:
+   - **Clients**: 20 PlainText, 1 Link, 2 RichText, 1 Option
+   - **Ideas**: 40 PlainText, 1 Number, 1 Switch, 1 Reference, 2 Option
+   - **Pages**: 35 PlainText, 3 Link, 1 RichText, 1 Number, 1 Switch, 1 Reference, 4 Option
+   - **Partners**: 6 PlainText, 1 Link, 2 Switch, 1 Number
+
+3. **Record Option IDs**
+
+   Every Option field gets unique hash IDs from Webflow. These are resolved at runtime via `webflow-options.ts` - no hardcoded maps needed. The same codebase works across test and production sites.
+
+4. **Configure Environment Variables**
+
+   Update `.env` files in all three repos with the new site's credentials. See [Environment Config](/operations/environment-config/) for the full list.
+
+5. **Seed Partner Data**
+
+   Partners are the only pre-seeded data. Create the partner records via the Webflow API after collections are set up. See the [Partner Manager](/admin-guide/partner-manager/) for the current partner list.
+
+6. **Publish Items**
+
+   Items cannot be published until the Webflow site itself has been published at least once.
+
+   Publish the site first, wait a few seconds, then publish partner items. If publish returns 404, wait and retry (up to 3 times with increasing delays).
+
+7. **Verify Locally**
+
+   Run both services locally:
+   ```bash
+   # Terminal 1 - Site (port 4321)
+   cd site && npm install && npm run dev
+
+   # Terminal 2 - Admin (port 4322)
+   cd admin && npm install && npm run dev
+   ```
+
+   Test checklist:
+   - Admin login works
+   - Partners appear in partner selection
+   - Can create a new client
+   - Research runs
+   - Seed ideas generate
+   - Full ideas generate
+   - Pitch pages render on site
+   - Package creation works
+
+8. **Deploy to Webflow Cloud**
+
+   See the [Deployment](/operations/deployment/) guide for Webflow Cloud setup.
+
+9. **Update Site Registry**
+
+   Record the new site in the site registry (`admin/docs/ops/site-registry.md`) with all collection IDs, option IDs, and configuration details.
+
+</Steps>
+
+<Aside type="note">
+**Local dev vs. Webflow Cloud URL difference:**
+In local dev (base: `/`), site URLs are `http://localhost:4321/[token]/p/[slug]`.
+On Webflow Cloud (base: `/c`), URLs are `https://your-site.webflow.io/c/[token]/p/[slug]`.
+</Aside>

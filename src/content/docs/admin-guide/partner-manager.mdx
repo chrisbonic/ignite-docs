@@ -1,0 +1,73 @@
+---
+title: Partner Manager
+description: Manage the global partner catalog.
+---
+
+The Partner Manager at `/admin/partners` is where you add, edit, and organize partner organizations. Partners appear on pitch pages as co-delivery partners alongside Ignite.
+
+## Current Partners
+
+| Partner | Badge | Status |
+|---------|-------|--------|
+| **Webflow** | Webflow Enterprise Partner | Active, Featured |
+| **Google Cloud** | Google Cloud Partner | Active, Featured |
+| **Salesforce** | Salesforce Partner | Active |
+| **HubSpot** | HubSpot Partner | Active |
+| **Snowflake** | Snowflake Partner | Active |
+| **Edgar Allan** | Webflow Enterprise | Active |
+| **Modal** | AI Infrastructure Partner | Active, Featured |
+| **Candid Leap** | Design Systems | Inactive |
+
+## Partner Fields
+
+| Field | Description |
+|-------|-------------|
+| **Name** | Display name |
+| **Description** | What this partner brings (1-2 sentences) |
+| **Badge** | Label shown on pitch cards (e.g., "Webflow Enterprise Partner") |
+| **Logo URL** | Partner logo image |
+| **Website URL** | Partner website |
+| **Categories** | Capability tags (see below) |
+| **Contact Name** | Primary partner contact |
+| **Contact Email** | Contact email |
+| **Active** | Shows in the partner selection UI |
+| **Featured** | Auto-selected as default for new clients and Agent Mode |
+| **Sort Order** | Display order in selection lists (lower = first) |
+
+## Partner Categories
+
+Categories describe what a partner brings to the table:
+
+| Category | Lane |
+|----------|------|
+| `technology-cloud` | Infrastructure, hosting, compute |
+| `platform` | Tools clients build on (Webflow, Salesforce) |
+| `data-ai` | Analytics, ML, intelligence |
+| `cyber-security` | Security, governance |
+| `operations` | Workflow, automation, integration |
+| `seo-aeo` | Organic discovery, AI search optimization |
+| `advertising-media` | Paid channels, programmatic |
+| `ecosystem-creator` | Community, creator economy |
+| `branding-creative` | Identity, design systems, content |
+| `distribution` | Channel partnerships, marketplace |
+| `financing` | Capital, payment infrastructure |
+| `product-development` | UX research, roadmap, feature strategy |
+| `compliance` | Industry-specific (HIPAA, SOC2, PCI) |
+
+## Adding a New Partner
+
+1. Go to `/admin/partners`
+2. Click **Add Partner**
+3. Fill in name, description, badge, logo URL, and categories
+4. Set **Active** to make it available in partner selection
+5. Set **Featured** if it should be auto-selected for new clients
+6. Set **Sort Order** for display priority
+
+## How Partners Appear on Pitches
+
+When you create a client, you select partners from the master list. The selection order determines prominence:
+
+- **Position 1** - Most prominent partner card
+- **Position 2-4** - Additional partner cards in order
+
+Ignite Studio always appears as the first card (hardcoded), followed by the partners you selected.

@@ -1,0 +1,101 @@
+---
+title: Environment Config
+description: Environment variables for all three services.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Each service needs its own `.env` file. See `.env.example` in each repo for the template.
+
+## Admin Environment Variables
+
+```bash
+# Webflow CMS
+WEBFLOW_API_TOKEN=<token>
+WEBFLOW_SITE_ID=<site_id>
+WEBFLOW_CLIENTS_COLLECTION_ID=<id>
+WEBFLOW_IDEAS_COLLECTION_ID=<id>
+WEBFLOW_PAGES_COLLECTION_ID=<id>
+WEBFLOW_PARTNERS_COLLECTION_ID=<id>
+
+# Admin Auth
+ADMIN_PASSWORD=<password>
+ADMIN_SECRET=<secret for HMAC session cookies>
+
+# Pitch Site URL
+SITE_URL=<pitch site URL>
+
+# AI APIs
+PERPLEXITY_API_KEY=<key>
+ANTHROPIC_API_KEY=<key>
+GEMINI_API_KEY=<key>
+OPENAI_API_KEY=<key>
+
+# Compute Service (Pitch Agent)
+AGENT_COMPUTE_URL=https://ignite-pitch-compute.vercel.app
+AGENT_COMPUTE_SECRET=<shared bearer token>
+```
+
+### SITE_URL Notes
+
+The `SITE_URL` variable tells the admin where to link for pitch site pages:
+
+| Environment | SITE_URL Value |
+|-------------|---------------|
+| Local dev | `http://localhost:4321` |
+| Webflow Cloud | `https://your-site.webflow.io/c` (include `/c`) |
+| Production | `https://ignite-studio.co/c` (include `/c`) |
+
+Include the `/c` mount path for Webflow Cloud deployments. The admin uses this to auto-detect whether to include `/c/` in site page URLs.
+
+## Pitch Site Environment Variables
+
+```bash
+# Webflow CMS (read-only access is sufficient)
+WEBFLOW_API_TOKEN=<token>
+WEBFLOW_SITE_ID=<site_id>
+WEBFLOW_CLIENTS_COLLECTION_ID=<id>
+WEBFLOW_IDEAS_COLLECTION_ID=<id>
+WEBFLOW_PAGES_COLLECTION_ID=<id>
+```
+
+The site only needs CMS read access. It doesn't need AI API keys or auth config.
+
+## Compute Service Environment Variables
+
+```bash
+# AI APIs
+ANTHROPIC_API_KEY=<key>
+PERPLEXITY_API_KEY=<key>
+GEMINI_API_KEY=<key>
+OPENAI_API_KEY=<key>
+
+# Auth
+AGENT_COMPUTE_SECRET=<shared bearer token - must match admin>
+
+# CORS
+ALLOWED_ORIGINS=https://your-site.webflow.io,http://localhost:4322
+
+# Vercel KV (Redis - for persistent job storage)
+KV_REST_API_URL=<url>
+KV_REST_API_TOKEN=<token>
+```
+
+<Aside type="note">
+The compute service does NOT need Webflow CMS credentials in its own env. The admin passes CMS credentials with each request, and the compute service stores them per-job. This enables multi-environment support from a single compute deployment.
+</Aside>
+
+## Environment Separation
+
+| Environment | CMS Target | Purpose |
+|-------------|-----------|---------|
+| **Test** | CMS Install Test site | Development and testing |
+| **Production** | ignite-studio.co | Live prospect pitches |
+
+<Aside type="caution">
+Be careful with environment files. Test and production environments use different Webflow sites with different collection IDs and API tokens. Never point a test admin at production CMS or vice versa. Label your `.env` files clearly.
+</Aside>
+
+## Webflow Cloud Runtime
+
+On Webflow Cloud (Cloudflare Workers), environment variables are NOT available via `process.env` at runtime. They're in `context.locals.runtime.env`. The admin middleware copies them to `process.env` on each request so the rest of the code can use `process.env` normally.

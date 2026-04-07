@@ -1,0 +1,68 @@
+---
+title: Research
+description: Running AI-powered research to build the source of truth for a client.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Research is the foundation of every pitch. Before generating ideas, you need a solid **source of truth** about the client's business, challenges, and strategic direction.
+
+## Running Research
+
+1. From the client hub, click **Research**
+2. The company URL is pre-filled from client setup
+3. Click **Run Research** - this sends the URL to Perplexity Sonar for a deep analysis
+
+The research streams back in real-time as structured sections.
+
+## Research Sections
+
+Perplexity returns organized research in these sections:
+
+| Section | What It Contains |
+|---------|-----------------|
+| **Business Snapshot** | What the company does, market position, key metrics |
+| **Strategic Moves** | Recent initiatives, acquisitions, product launches |
+| **Challenges** | Pain points, operational friction, market pressures |
+| **Competitive Landscape** | Key competitors and differentiators |
+| **Recent News** | Latest press, earnings, announcements |
+
+Each section appears as an editable card in the UI. You can:
+- **Edit** any section to refine or add context
+- **Delete** sections that aren't relevant
+- **Reorder** sections by priority
+
+## Building the Quote Bank
+
+The research also produces a **quote bank** - 5-8 verified executive quotes with source citations.
+
+<Aside type="caution">
+Executive quotes **must be real and verified**. Every quote needs:
+- The exact quote text
+- Speaker name and title
+- Source (e.g., "Q4 2025 Earnings Call", "March 2026 Press Release")
+
+Never fabricate or paraphrase quotes attributed to named executives. If no executive quotes exist, use industry analyst quotes or market data points with sources.
+</Aside>
+
+Good sources for quotes:
+- Quarterly earnings call transcripts
+- Press releases
+- Conference keynotes
+- Published interviews
+- Annual reports
+
+## How Research Feeds Generation
+
+The source of truth and quote bank are saved to the client record. When you generate ideas:
+
+1. Claude reads the full source of truth to understand the company
+2. Seeds are mapped to specific challenges from the research
+3. Executive quotes from the quote bank are matched to relevant ideas
+4. The presentation context (if set) shapes the audience lens
+
+Better research = better ideas. Take the time to curate the source of truth before generating.
+
+## Re-Running Research
+
+You can run research multiple times. Each run overwrites the previous source of truth. If you've made manual edits to the research, they'll be replaced - so save any custom additions before re-running.

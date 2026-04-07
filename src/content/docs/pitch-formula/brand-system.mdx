@@ -1,0 +1,77 @@
+---
+title: Brand System
+description: The Ignite Studio visual identity - colors, typography, and dark theme design system.
+---
+
+The Ignite Studio brand uses a **dark theme only**. All pitch pages, sales pages, and package pages follow this design system.
+
+## Color Tokens
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| **Deep Space** | `#050510` | Page background |
+| **Ignite Indigo** | `#4F46E5` | Primary accent, key phrase highlights |
+| **Purple** | `#A855F7` | Secondary accent, innovation themes |
+| **Blue** | `#146EF5` | Technology themes, Webflow branding |
+| **Rose** | `#F43F5E` | Urgency, trust & safety themes |
+
+## Category Colors
+
+Ideas and pages are tagged with a category color that determines accent styling:
+
+| Color | CSS Class | Typical Category |
+|-------|-----------|-----------------|
+| **Indigo** | `text-indigo-400` | Strategy & Innovation |
+| **Purple** | `text-purple-400` | Revenue & Growth |
+| **Rose** | `text-rose-400` | Trust & Safety |
+| **Blue** | `text-blue-400` | Technology |
+
+## Glass Panels
+
+All cards and surfaces use the glass panel effect:
+
+| Property | Value |
+|----------|-------|
+| Background | `rgba(255, 255, 255, 0.02)` |
+| Border | `rgba(255, 255, 255, 0.06)` |
+
+This creates a subtle frosted-glass appearance against the dark background.
+
+## Typography
+
+| Element | Font | Weight | Notes |
+|---------|------|--------|-------|
+| **Headings** | Urbanist | Bold | All headings, hero h1 |
+| **Body** | Inter | Light (300) | Body text in `text-gray-500` |
+
+### Hero Headline Rules
+
+The hero h1 is the most visually prominent element. It renders in:
+- **Urbanist** font
+- **5rem** size
+- **Uppercase** transform
+- **Maximum 3 lines**, ~20 characters per line
+
+Lines longer than ~20 characters will wrap and create 4-5 visual lines on desktop, which looks bad. Always check headline wrapping before sharing.
+
+## Hero Images
+
+Every page gets a brand hero image via the `pickBrandHeroImage()` system:
+
+- 14 curated brand images
+- Hash-seeded by client token (same client always gets the same image set)
+- Offset by page index (different pages within a client get different images)
+- Image always wins over video
+
+The images are full-viewport backgrounds with a dark overlay for text legibility.
+
+## Visual HTML (Diagrams)
+
+Idea pages include visual HTML diagrams in Slide 4 (The Idea). These diagrams follow:
+
+- **Input -> Engine -> Output** flow pattern
+- Glass panels (`.glass` class) for cards
+- `.vis-label` for section labels
+- `.vis-pill` for capability badges
+- `.vis-connector-*` for vertical connecting lines
+- Only safelisted Tailwind classes are allowed

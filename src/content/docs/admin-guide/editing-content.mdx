@@ -1,0 +1,77 @@
+---
+title: Editing Content
+description: Polish and QA generated content before sharing with prospects.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+After generation, every idea and page should be reviewed and polished before sharing. The admin provides field-by-field editors for fine-tuning content.
+
+## Editing Ideas
+
+From the client hub, click any idea in the idea list. The editor shows each slide as a tab:
+
+### Slide 1: Hero
+- **Hero headline** - should fit in 3 lines at ~20 characters per line
+- **Subtitle** - one reinforcing sentence
+- Hero image is auto-assigned via the brand image system
+
+### Slide 2: Executive Quote
+- Verify the quote is **real and sourced**
+- Check the attribution includes name and title
+- Confirm the source citation (e.g., "Q4 2025 Earnings Call")
+
+### Slide 3: The Gap
+- Three headline lines framing the problem
+- Three symptom cards with titles and descriptions
+- Cards should use parallel structure
+
+### Slide 4: The Idea
+- Headline and description
+- **Visual HTML diagram** - the star of this section
+- Verify the diagram renders correctly (preview it on the pitch site)
+
+### Slide 5: Imagine This
+- Exactly 2 scenarios
+- No fake numbers or undefensible stats
+- Conceptual enough to be credible
+
+### Slide 6: Delivery Approach
+- 3 editable steps + Step 4 ("Your Team Presents" is hardcoded)
+- No timelines, costs, or commitments
+
+### Slide 7: CTA
+- "Book a Call" + "View More Opportunities"
+- Links configured automatically
+
+## QA Checklist
+
+Before sharing any pitch, verify:
+
+- [ ] Hero h1 fits in 3 lines at desktop size
+- [ ] Executive quote is real, verified, and sourced
+- [ ] No em dashes anywhere (use regular dashes)
+- [ ] No fake or undefensible numbers
+- [ ] Step 4 says "Your Team Presents"
+- [ ] Visual diagrams render correctly
+- [ ] No placeholder tokens remain
+- [ ] Idea counter shows "Idea XX" with no total count
+- [ ] Opportunities Drawer works (clicking from package preserves context)
+- [ ] Footer links go to ignite-studio.co partner pages
+- [ ] Test on mobile (375px width)
+
+<Aside type="caution">
+Never use "powered by" language in any content. Ignite leads - partners are "brought to the table."
+</Aside>
+
+## Editing Pages
+
+Sales pages and partner pages use a similar editor. Fields are grouped by section (Hero, Proof, Problem, Approach, Media, CTA, Partner).
+
+## Archiving Content
+
+To hide an idea without deleting it, toggle the **Archived** switch. Archived ideas:
+- Don't appear on the pitch site
+- Don't show in package listings
+- Remain in the CMS for future use
+- Can be unarchived at any time

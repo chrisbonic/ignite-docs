@@ -1,0 +1,93 @@
+---
+title: Deployment
+description: How to deploy the admin, site, and compute services.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## Webflow Cloud Deployment (Admin + Site)
+
+Both the admin and pitch site deploy to Webflow Cloud. Each repo maps to one Webflow Cloud project.
+
+### Pre-Deploy Checklist
+
+These files must exist at each repo root:
+
+| File | Purpose | Content |
+|------|---------|---------|
+| `webflow.json` | Framework detection | `{"cloud":{"framework":"astro"}}` |
+| `wrangler.json` | Cloudflare Workers config | Must have `name` and `main` fields |
+| `package-lock.json` | npm lockfile | Generated via `npm install` (not pnpm) |
+| `astro.config.mjs` | Astro config | Uses `@astrojs/cloudflare@^12` adapter |
+
+### Critical Config Rules
+
+1. **Adapter**: `@astrojs/cloudflare@^12` - NOT v13 (v13's vite plugin fails on missing dist files)
+2. **Base path**: `base: 'CLOUD_MOUNT_PATH'` - literal string, Webflow replaces at build time
+3. **No mount prefix in routes** - see [URL Structure](/architecture/url-structure/)
+4. **React deps**: `react`, `react-dom`, `@astrojs/react` must be in dependencies (Webflow Cloud injects `@astrojs/react`)
+5. **CSRF**: `security: { checkOrigin: false }` in astro config
+6. **No Node.js filesystem APIs**: `node:fs`, `node:path`, `node:url` will crash Cloudflare Workers
+7. **Package manager**: npm only (not pnpm). Webflow Cloud runs `npm clean-install`
+
+### Creating Webflow Cloud Projects
+
+In Webflow dashboard > Site Settings > Webflow Cloud:
+
+1. Click **"Create New Project"**
+2. Select the GitHub repo
+3. **Directory path**: LEAVE EMPTY - each repo is the project root
+
+<Aside type="caution">
+**Directory path vs Mount path are different things.**
+- Directory path (Create Project) = where source code lives in the repo. Leave empty.
+- Path (Create Environment) = URL mount path on the site (`/c` or `/admin`).
+
+Setting Directory path to `admin` will cause builds to fail with "webflow.json is not present."
+</Aside>
+
+4. Create environment:
+   - **Branch**: `main`
+   - **Path**: `/c` (for site) or `/admin` (for admin)
+5. Import environment variables from your `.env` file
+6. Deploy triggers automatically on push to the branch
+
+### Build Process
+
+Webflow Cloud builds:
+1. Downloads repo from GitHub
+2. Detects framework from `webflow.json`
+3. Runs `npm clean-install`
+4. Wraps your astro config with their template
+5. Runs `astro build`
+6. Deploys to Cloudflare Workers
+
+Build takes ~15-20s. Deploy takes ~10-15s after build.
+
+## Vercel Deployment (Compute)
+
+The compute service deploys to Vercel Pro.
+
+1. Create a new Vercel project linked to the compute repo
+2. Set root directory to `compute/` in project settings
+3. Add all environment variables
+4. Link a Vercel KV store for persistent job storage
+5. Set the deployed URL as `AGENT_COMPUTE_URL` in the admin's env
+
+Vercel auto-deploys on push to main.
+
+### Why Vercel Pro?
+
+- 800-second function timeout (covers 5-min pipeline with margin)
+- I/O wait is free (pipeline is ~90% waiting on AI APIs)
+- Near-zero cold starts with Fluid Compute
+- Native TypeScript support
+
+## Deployment Workflow
+
+```
+Push to main → Webflow Cloud auto-deploys (admin + site)
+Push to main → Vercel auto-deploys (compute)
+```
+
+All three services deploy independently. Push each repo separately.

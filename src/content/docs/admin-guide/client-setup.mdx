@@ -1,0 +1,59 @@
+---
+title: Client Setup
+description: How to create and configure a new client in the admin.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## Creating a Client
+
+Navigate to `/admin/clients/new`. The client creation flow is **URL-first**:
+
+1. **Enter the company website URL** (e.g., `https://walmart.com`)
+2. Perplexity runs a lookup and auto-fills:
+   - Company name
+   - Description (mission/about)
+   - Navigation context label (what appears in the nav bar)
+3. **Review and edit** the auto-filled fields
+4. **Select partners** from the master list using the tag picker
+   - Order matters - first partner gets the most prominence on the pitch
+   - Featured partners are pre-selected by default
+5. **Token** is auto-generated from company initials + random hex (e.g., `wm-7f3a9b`)
+6. Smart defaults pre-fill the tagline and book-a-call URL
+7. Click **Create Client**
+
+A **default package** is automatically created when the client is created.
+
+<Aside type="tip">
+If the Perplexity lookup fails (e.g., the URL is unreachable), you can manually fill in all fields. The lookup is a convenience, not a requirement.
+</Aside>
+
+## Client Fields
+
+| Field | Description |
+|-------|-------------|
+| **Name** | Company display name |
+| **Token** | Unguessable URL identifier (auto-generated, not editable after creation) |
+| **Description** | Company about/mission |
+| **Nav Context** | Label shown in the pitch site navigation bar |
+| **Tagline** | Subtitle on the package hero section |
+| **Company URL** | The company's website (used for research) |
+| **Book a Call URL** | Link to your booking page (appears on CTAs) |
+| **Logo URL** | Optional company logo |
+| **Status** | `draft`, `active`, or `archived` |
+
+## Client Status
+
+| Status | Meaning |
+|--------|---------|
+| **Draft** | Work in progress, not ready to share |
+| **Active** | Content is ready, links can be shared with prospects |
+| **Archived** | No longer active, hidden from the default dashboard view |
+
+## Editing a Client
+
+From the client hub, click the client name or edit button to modify any field. Changes save immediately to the CMS.
+
+<Aside type="caution">
+The client **token** cannot be changed after creation. If you need a different token, create a new client. This is by design - changing tokens would break any shared URLs.
+</Aside>

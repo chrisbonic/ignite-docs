@@ -1,0 +1,88 @@
+---
+title: The 7-Slide Formula
+description: The structure behind every idea pitch page - designed for a ~60 second scroll.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Every idea pitch page follows this exact structure. Each "slide" is a full-width section. The entire page reads in approximately 60 seconds.
+
+## Slide 1: The Big Idea (Hero)
+
+The hero is a full-viewport section with a brand image background. It presents one bold competitive concept - not a product description.
+
+**Requirements:**
+- **MAX 3 lines in the h1**, ~20 characters per line at 5rem uppercase Urbanist
+- Longer lines wrap on desktop and create 4-5 visual lines - tighter is always better
+- One-sentence subtitle reinforcing urgency
+- Idea counter: "Idea XX" format (no totals - the portfolio is always evolving)
+- Brand hero image auto-assigned via `pickBrandHeroImage()`
+
+<Aside type="tip">
+The hero headline is the most important piece of copy on the page. It should be a provocation, not a description. Think "Kill the Bottleneck" not "Supply Chain Optimization Tool."
+</Aside>
+
+## Slide 2: The Executive Quote
+
+A real, verified quote from the prospect's leadership. This creates instant credibility - the prospect sees their own words reflected back.
+
+**Requirements:**
+- **Must be a real, verified quote** from earnings calls, press releases, or interviews
+- Include the source in the attribution (e.g., "Q4 2025 Earnings Call")
+- Key phrase highlighted in indigo
+- Label: "From Your Leadership" / "The Signal" / "From Your CFO" or similar
+- **Never fabricate or paraphrase** a quote attributed to a named executive
+
+If no executive quote exists, use an industry analyst quote or market data point with a source.
+
+## Slide 3: The Gap
+
+The problem section - framed in THEIR vocabulary, not yours. The prospect should nod before you pitch.
+
+**Requirements:**
+- Headline passes the "that's me" test
+- 3 glass cards naming symptoms (parallel structure)
+- No body paragraph under the headline - heading + cards say enough
+- No solving yet. Just pain.
+
+## Slide 4: The Idea
+
+What this actually is. The visual diagram is the star of this section.
+
+**Requirements:**
+- One heading + one line of description
+- A **visual diagram** that makes the concept instantly legible (flow diagram, before/after, architecture)
+- The visual follows an **Input -> Engine -> Output** flow pattern
+- Text supports the visual, not the other way around
+
+## Slide 5: Imagine This
+
+Two scenarios making the idea tangible.
+
+**Requirements:**
+- Exactly **2 scenarios** (not 4, not 1)
+- No fake numbers or undefensible stats
+- Conceptual enough to be credible
+- Pick the two **most distinct** scenarios
+
+## Slide 6: Delivery Approach
+
+How Ignite delivers - without commitment.
+
+**Requirements:**
+- **4 steps**, no timelines, costs, or commitments
+- Step 4 is **ALWAYS** "Your Team Presents" - this is non-negotiable
+- Heading: "Prototype to Proof. Your Team Presents the Win."
+
+<Aside type="caution">
+Step 4 ("Your Team Presents") is hardcoded in the component. Don't try to change it in the CMS - the component renders it automatically.
+</Aside>
+
+## Slide 7: CTA
+
+The close.
+
+**Requirements:**
+- Heading: "Ready to Build Something Together?"
+- Sub: "We'll bring the team, the tools, and the proof and work with your existing stack and staff."
+- **"Book a Call"** (primary button) + **"View More Opportunities"** (ghost link back to package)

@@ -1,0 +1,72 @@
+---
+title: Platform Overview
+description: How the Ignite Studio platform is structured and what each piece does.
+---
+
+Ignite Studio runs as three independent services that work together to generate and deliver branded pitch packages for enterprise prospects.
+
+## The Three Services
+
+| Service | What It Does | Where It Runs |
+|---------|-------------|---------------|
+| **Admin** | Dashboard for managing clients, running research, generating content, and curating packages | Webflow Cloud (`/admin`) |
+| **Pitch Site** | What prospects see - renders branded pitch pages from CMS data | Webflow Cloud (`/c`) |
+| **Compute** | Runs long AI pipelines (2-5 min) that exceed Webflow Cloud's timeout limits | Vercel |
+
+### Admin (`/admin`)
+
+The admin app is your control center. From here you:
+
+- Create new client prospects with a URL-first flow
+- Run AI-powered research using Perplexity Sonar
+- Generate seed ideas and full pitch content using Claude
+- Create sales pages, partner co-sell pages, and curated packages
+- Launch batch pipelines via the Pitch Agent
+- Manage the partner catalog
+
+The admin is password-protected. Access it at `your-site.com/admin`.
+
+### Pitch Site (`/c`)
+
+The pitch site is what your prospects see. Every page serves from a single route pattern:
+
+```
+/c/[clientToken]/p/[pageSlug]
+```
+
+Pages are server-side rendered - content changes in the admin are live on the next page load. No rebuild or publish step needed (except for Webflow CMS publishing).
+
+### Compute Service
+
+The compute service exists because Webflow Cloud (Cloudflare Workers) has a 20-second request timeout. The Pitch Agent pipeline takes 2-5 minutes with 10+ sequential AI calls, so it runs on Vercel where function timeouts extend to 800 seconds.
+
+The admin calls the compute service via HTTP. The compute service writes directly to your Webflow CMS. You never interact with the compute service directly.
+
+## How They Connect
+
+```
+You --> Admin (Webflow Cloud /admin)
+         |
+         |--> Webflow CMS (reads/writes content)
+         |
+         |--> Compute (Vercel) for long pipelines
+                |
+                |--> Webflow CMS (writes generated content)
+
+Prospect --> Pitch Site (Webflow Cloud /c)
+               |
+               |--> Webflow CMS (reads content to render pages)
+```
+
+## Technology Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | Astro 6 (SSR) |
+| Styling | Tailwind CSS v4 |
+| CMS | Webflow CMS API |
+| Admin Hosting | Webflow Cloud (Cloudflare Workers) |
+| Site Hosting | Webflow Cloud (Cloudflare Workers) |
+| Compute Hosting | Vercel Pro |
+| AI Generation | Claude API + Perplexity Sonar |
+| Cost Tracking | Vercel KV (Redis) |

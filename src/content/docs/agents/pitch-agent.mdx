@@ -1,0 +1,89 @@
+---
+title: Pitch Agent
+description: Batch pipeline for processing multiple companies through the Pitch Agent compute service.
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components';
+
+The Pitch Agent is a batch pipeline that processes multiple companies at once. It uses the [compute service](/architecture/system-design/) running on Vercel for long-running AI pipelines.
+
+## The Prepare/Review/Launch Workflow
+
+<Steps>
+
+1. **Prepare**
+
+   Navigate to **Pitch Agent** from the admin sidebar. Enter one or more company URLs (one per line).
+
+   Click **Prepare**. The system sends each URL to the compute service, which:
+   - Validates the URL is reachable
+   - Runs company lookup via Perplexity
+   - Creates a job record for each URL
+   - Returns job configurations for review
+
+2. **Review**
+
+   Each job appears as a card showing:
+   - Company name (auto-detected)
+   - URL validation status
+   - Proposed partner selection
+   - Configuration options
+
+   Review each job. You can:
+   - Edit company details
+   - Change partner selection
+   - Remove jobs you don't want to process
+   - Adjust audience lens or context
+
+3. **Launch**
+
+   Click **Launch** to start the pipeline. The compute service:
+   - Runs the full generation pipeline for each job
+   - Processes jobs sequentially (to manage AI API costs)
+   - Writes generated content directly to the Webflow CMS
+   - Tracks progress, tokens used, and estimated cost
+
+4. **Monitor**
+
+   The admin polls the compute service every 2.5 seconds for progress updates. Each job shows:
+   - Current step (Research, Seeds, Generation, Publishing...)
+   - Progress percentage
+   - Token usage and estimated cost
+   - Any errors encountered
+
+   When complete, each job provides a direct link to the finished package on the pitch site.
+
+</Steps>
+
+## URL Validation
+
+The Pitch Agent uses 3-layer URL validation:
+
+1. **Frontend format check** - is it a valid URL?
+2. **Reachable flag** - can the URL be reached?
+3. **Pipeline early-exit** - if the URL is bogus, the job fails fast before burning AI tokens
+
+<Aside type="tip">
+Always use the company's main website URL (e.g., `https://walmart.com`), not a specific page or subpage. The research pipeline needs the top-level domain to find comprehensive company information.
+</Aside>
+
+## Cost Tracking
+
+Every Pitch Agent job tracks:
+- **Input tokens** and **output tokens** per AI call
+- **Estimated cost** based on model pricing
+- **Total cost** for the entire pipeline run
+
+View aggregated costs across all jobs at the cost dashboard.
+
+## Job History
+
+Completed jobs are stored in the compute service's KV store. You can view past jobs, their results, and cost breakdowns from the Pitch Agent dashboard.
+
+## Error Handling
+
+If a job fails mid-pipeline:
+- The error is recorded on the job
+- Other jobs continue processing
+- You can retry failed jobs without re-running successful ones
+- Partial content (if any was written to CMS before the failure) remains and can be cleaned up manually

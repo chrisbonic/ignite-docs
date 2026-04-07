@@ -1,0 +1,78 @@
+---
+title: Generating Ideas
+description: How to generate seed ideas, review them, and run full generation.
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components';
+
+Idea generation is a two-step process: **seeds** (quick concepts) and **full generation** (complete 7-slide content).
+
+## The Generation Flow
+
+<Steps>
+
+1. **Configure the run**
+
+   From the client hub, go to **Generate**. Set:
+   - **Audience lens** - who you're pitching to (Technology, Finance, Strategy & Innovation, etc.)
+   - **Presentation context** (optional) - meeting details, constraints, what to emphasize
+
+   The audience lens shapes the framing of every idea. A "Technology" lens emphasizes technical architecture and integration. A "Finance" lens emphasizes ROI and cost optimization.
+
+2. **Generate seeds**
+
+   Click **Generate Seeds**. Claude reads the source of truth and produces 6-10 seed ideas. Each seed shows:
+   - **Hero headline** - the bold competitive concept (3 lines, ~20 chars/line)
+   - **Category** - e.g., "Revenue & Growth", "Operational Excellence"
+   - **Challenge mapping** - which research challenge this addresses
+   - **Matched quote** - an executive quote from the quote bank
+
+3. **Review and approve seeds**
+
+   For each seed:
+   - **Approve** - mark it for full generation
+   - **Reject** - remove it from the batch
+   - **Edit** - refine the hero headline or other fields before generating
+
+4. **Run full generation**
+
+   Click **Generate** on approved seeds. Claude generates all 40+ fields per idea:
+   - Complete 7-slide content (hero, quote, gap, idea, scenarios, delivery, CTA)
+   - Visual HTML diagram for the idea section
+   - Matched executive quote with attribution
+   - Category color assignment
+
+   Content is written directly to the Webflow CMS.
+
+</Steps>
+
+## Audience Lenses
+
+| Lens | Focus |
+|------|-------|
+| **Finance** | ROI, cost optimization, financial metrics |
+| **Business** | Growth, market position, strategy |
+| **Technology** | Architecture, integration, infrastructure |
+| **Sales & RevOps** | Pipeline, conversion, sales enablement |
+| **Product** | Product strategy, user experience, roadmap |
+| **Strategy & Innovation** | Transformation, competitive advantage |
+| **IT Operations** | Reliability, automation, efficiency |
+| **Security & Governance** | Compliance, risk, data protection |
+
+## Presentation Context
+
+Presentation context is optional free-text that shapes generation. Examples:
+
+- "Meeting with the CTO next Thursday, they're evaluating cloud migration partners"
+- "This is for a trade show booth - keep ideas high-level and visual"
+- "The prospect mentioned they're struggling with data silos across 12 acquisitions"
+
+Presentation context is per-run (not saved to the client). Set it each time for the specific audience.
+
+<Aside type="tip">
+**Write the hero headline carefully.** The h1 must fit in 3 lines at ~20 characters per line in uppercase Urbanist font at 5rem. Longer lines wrap badly on desktop. Tighter is always better.
+</Aside>
+
+## After Generation
+
+Generated ideas appear in the client's idea list. Each idea is immediately live on the pitch site after Webflow CMS publishing. Go to [Editing Content](/admin-guide/editing-content/) to polish individual ideas.

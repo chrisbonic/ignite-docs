@@ -1,0 +1,97 @@
+---
+title: Your First Client
+description: Walk through creating a client, running research, generating ideas, and sharing a pitch package.
+---
+
+import { Steps } from '@astrojs/starlight/components';
+
+This guide walks you through the complete workflow from creating a new client to sharing a branded pitch package.
+
+<Steps>
+
+1. **Log in to the Admin**
+
+   Go to `your-site.com/admin/login` and enter the admin password. You'll land on the client dashboard.
+
+2. **Create a New Client**
+
+   Click **New Client** from the dashboard. Enter the company's website URL (e.g., `https://walmart.com`).
+
+   The system runs a Perplexity lookup and auto-fills:
+   - Company name
+   - Description
+   - Navigation context label
+
+   Review and edit these as needed. Then:
+   - Select partners from the list (order = pitch prominence)
+   - The token is auto-generated (e.g., `wm-7f3a9b`)
+   - A default package is created automatically
+
+   Click **Create Client**.
+
+3. **Run Research**
+
+   From the client hub, click **Research**. Enter the company URL and run the Perplexity Sonar deep dive.
+
+   The research returns structured sections:
+   - Business Snapshot
+   - Strategic Moves
+   - Challenges
+   - Competitive Landscape
+   - Recent News
+   - Quote Bank (verified executive quotes)
+
+   Each section is editable. Remove anything that's not relevant. Make sure the quotes are real and sourced.
+
+4. **Generate Seed Ideas**
+
+   Go to **Generate** from the client hub. Configure your run:
+   - Select an **audience lens** (e.g., Technology, Finance, Strategy & Innovation)
+   - Optionally add **presentation context** (who you're meeting, constraints)
+
+   Click **Generate Seeds**. Claude produces 6-10 seed ideas based on the research. Each seed shows:
+   - Hero headline copy (the bold concept)
+   - Category
+   - Challenge mapping
+   - Matched executive quote
+
+   Review each seed. Approve the ones you want to generate fully. Edit headlines if they need tightening (aim for 3 lines, ~20 characters per line).
+
+5. **Generate Full Ideas**
+
+   Click **Generate** on your approved seeds. Claude generates all 40+ fields for each idea:
+   - Complete 7-slide content
+   - Visual HTML diagram
+   - Delivery approach
+   - CTA copy
+
+   Content is written directly to the Webflow CMS. Pages are live immediately after CMS publishing.
+
+6. **Review and Polish**
+
+   Go to each idea from the client hub's idea list. The editor shows each slide as a tab:
+   - Check hero headline fits in 3 lines
+   - Verify the executive quote is real and sourced
+   - Review the visual diagram renders correctly
+   - Confirm Step 4 says "Your Team Presents"
+   - Look for any em dashes (replace with regular dashes)
+
+7. **Share the Package**
+
+   From the client hub, click **View Default Package**. This opens the prospect-facing package page.
+
+   The URL looks like: `your-site.com/c/wm-7f3a9b/p/default-c7a2f1`
+
+   Share this URL directly with your prospect. The page is:
+   - Not indexed by search engines
+   - Not discoverable without the exact URL
+   - Live and up-to-date on every page load
+
+</Steps>
+
+## What's Next?
+
+- Generate [sales pages](/admin-guide/sales-pages/) targeting specific pain points
+- Create [partner co-sell pages](/admin-guide/partner-pages/) for joint pitches
+- Build additional [packages](/admin-guide/packages/) for different audiences
+- Use the [Pitch Agent](/agents/pitch-agent/) to process multiple companies at once

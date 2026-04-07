@@ -1,0 +1,84 @@
+---
+title: System Design
+description: How the three services work together - Webflow Cloud admin, Webflow Cloud site, and Vercel compute.
+---
+
+## Three Independent Repos
+
+The platform is split into three fully independent repositories:
+
+```
+ignite-webflow-sales/
+├── admin/    → chrisbonic/ignite-webflow-pitch-admin
+├── site/     → chrisbonic/ignite-webflow-pitch-site
+└── compute/  → chrisbonic/ignite-pitch-compute
+```
+
+Each repo is self-contained - shared library code is duplicated in each. They build independently with `npm install && npm run build`. No cross-repo dependencies.
+
+## Service Architecture
+
+### Admin (Webflow Cloud)
+
+| Property | Value |
+|----------|-------|
+| **Framework** | Astro 6 (SSR) |
+| **Runtime** | Cloudflare Workers (via Webflow Cloud) |
+| **Mount Path** | `/admin` |
+| **Adapter** | `@astrojs/cloudflare@^12` |
+| **Purpose** | Client management, research, generation, content editing |
+
+### Pitch Site (Webflow Cloud)
+
+| Property | Value |
+|----------|-------|
+| **Framework** | Astro 6 (SSR) |
+| **Runtime** | Cloudflare Workers (via Webflow Cloud) |
+| **Mount Path** | `/c` |
+| **Adapter** | `@astrojs/cloudflare@^12` |
+| **Purpose** | Render branded pitch pages for prospects |
+
+### Compute Service (Vercel)
+
+| Property | Value |
+|----------|-------|
+| **Framework** | Plain `@vercel/node` handlers |
+| **Runtime** | Vercel Serverless Functions (Pro plan) |
+| **Function Timeout** | 800 seconds |
+| **Purpose** | Long-running AI pipelines (Pitch Agent) |
+
+## Why Three Services?
+
+**Webflow Cloud** enforces one GitHub repo = one Webflow Cloud project. The admin and site need separate repos to get separate mount paths (`/admin` and `/c`) on the same Webflow site.
+
+**Vercel** is needed because Webflow Cloud (Cloudflare Workers) has a 20-second request timeout and 30-second CPU cap. The Pitch Agent pipeline runs 2-5 minutes with 10+ sequential AI calls. Individual SSE operations work on Webflow Cloud, but the full batch pipeline cannot.
+
+## Data Flow
+
+```
+Admin ──write──> Webflow CMS <──read── Pitch Site
+  │
+  │ (batch pipelines)
+  │
+  └──HTTP──> Compute (Vercel) ──write──> Webflow CMS
+```
+
+All three services share the same Webflow CMS. The admin and compute service write to it; the pitch site reads from it.
+
+## Shared Library
+
+Each repo contains an identical copy of the shared library:
+- `admin/src/lib/shared/`
+- `site/src/lib/shared/`
+- `compute/lib/shared/`
+
+The shared library includes types, CMS operations, AI clients, generation logic, and prompts. If you modify shared code, update it in all three repos.
+
+## Multi-Environment Support
+
+The compute service supports multiple environments from a single deployment. Each admin passes its own CMS credentials with every request. The compute service stores these per-job and uses them during pipeline execution:
+
+- Dev admin (test CMS credentials) -> compute -> writes to test CMS
+- Prod admin (prod CMS credentials) -> compute -> writes to prod CMS
+
+One compute deployment, one Redis store, zero collision between environments.
