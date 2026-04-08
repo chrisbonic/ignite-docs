@@ -43,7 +43,7 @@ The `SITE_URL` variable tells the admin where to link for pitch site pages:
 | Environment | SITE_URL Value |
 |-------------|---------------|
 | Local dev | `http://localhost:4321` |
-| Webflow Cloud | `https://your-site.webflow.io/c` (include `/c`) |
+| Webflow Cloud | `https://ignite-studio.co/c` (include `/c`) |
 | Production | `https://ignite-studio.co/c` (include `/c`) |
 
 Include the `/c` mount path for Webflow Cloud deployments. The admin uses this to auto-detect whether to include `/c/` in site page URLs.
@@ -74,7 +74,7 @@ OPENAI_API_KEY=<key>
 AGENT_COMPUTE_SECRET=<shared bearer token - must match admin>
 
 # CORS
-ALLOWED_ORIGINS=https://your-site.webflow.io,http://localhost:4322
+ALLOWED_ORIGINS=https://ignite-studio.co,http://localhost:4322
 
 # Vercel KV (Redis - for persistent job storage)
 KV_REST_API_URL=<url>

@@ -1,0 +1,53 @@
+---
+title: AI Context
+description: Configure global brand voice and positioning rules that shape every AI generation.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+AI Context lets you define your brand voice, tone, and positioning rules in one place. This context is injected into **every AI generation call** across all clients - ideas, sales pages, partner pages, and briefs all inherit it.
+
+## What It Does
+
+The AI Context page (`/admin/context`) is a markdown editor where you write your brand guidelines. Whatever you put here gets appended to every generation prompt as additional context, shaping how Claude writes content for all clients.
+
+This means you define your voice once and every generated page reflects it automatically.
+
+## Using the Editor
+
+The AI Context page has a two-column layout:
+
+- **Left: Markdown editor** - write your brand context using markdown formatting
+- **Right: Live preview** - see rendered output as you type
+
+Click **Save Context** to persist your changes to the CMS. The context is stored in the Settings collection and loaded at generation time.
+
+## What to Include
+
+Your brand context should cover:
+
+| Section | Example |
+|---------|---------|
+| **Identity** | Who you are, what you do, studio locations |
+| **Tagline** | Your core positioning line |
+| **Tone** | Writing style rules (direct, declarative, outcome-first) |
+| **Signature contrasts** | Build vs Talk, Chaos vs Command |
+| **Positioning rules** | How you frame your role relative to partners |
+| **Never say** | Words and patterns to avoid |
+| **Always say** | Preferred language and framing |
+| **Proof points** | Client names, metrics, outcomes |
+| **CTA** | Standard call-to-action text and URL |
+
+<Aside type="tip">
+Keep the context focused on **voice and positioning**, not technical details. The AI already has the client's research and intelligence - the brand context shapes *how* it writes, not *what* it writes about.
+</Aside>
+
+## How It Feeds Generation
+
+When any generation runs (seeds, ideas, sales pages, partner pages, briefs), the system:
+
+1. Loads the brand context from the Settings collection
+2. Appends it to the generation prompt as "Brand Context"
+3. Claude uses it to match your tone, avoid banned phrases, and follow positioning rules
+
+If no brand context is saved, generation proceeds without it - the prompts have sensible defaults built in.

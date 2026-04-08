@@ -1,0 +1,70 @@
+---
+title: Client Briefs
+description: Generate strategic client-facing briefs that summarize your understanding and proposed approach.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Client Briefs are strategic memos generated for each client. They synthesize research, intelligence, and brand context into a polished, client-facing document - the kind of thing you'd send before a first meeting to demonstrate you've done your homework.
+
+## When to Use Briefs
+
+- Before a first meeting - show you understand their business
+- As a leave-behind after a discovery call
+- To align your team on client context before a pitch
+- As the opening piece in a package alongside idea pitches
+
+## Generating a Brief
+
+1. From the client hub, go to **Generate Brief**
+2. Review the context panel showing what the AI will use:
+   - Research (source of truth)
+   - Intelligence entries and notes
+   - Brand context
+   - Selected partners
+3. Configure the generation direction (defaults to "Innovation Led Growth")
+4. Click **Generate Brief**
+
+The brief is generated via the compute service and written to the CMS as a page with type `client-brief`.
+
+<Aside type="tip">
+Briefs are better with more context. Run research, add intelligence entries, and save your brand context before generating. The brief pulls from all three.
+</Aside>
+
+## Brief Structure
+
+Each brief is a 12-section strategic memo:
+
+| Section | Content |
+|---------|---------|
+| **Executive Summary** | 2-3 paragraph overview of the opportunity |
+| **Company Understanding** | What they do, market position, scale |
+| **Strategic Landscape** | Industry trends and pressures they face |
+| **Key Challenges** | Specific problems identified from research + intelligence |
+| **Innovation Opportunities** | Where they can gain advantage |
+| **Proposed Approach** | How you'd work together |
+| **Studio Capabilities** | Relevant capabilities matched to their needs |
+| **Partner Ecosystem** | Partners you'd bring to the table |
+| **Proof Points** | Relevant client outcomes and metrics |
+| **Engagement Model** | How the engagement would work |
+| **Recommended Next Steps** | Concrete actions to move forward |
+| **About Ignite Studio** | Brief company overview |
+
+## Editing a Brief
+
+After generation, click **Edit** on the brief from the client's Pages tab. The brief editor has the same two-column layout as AI Context:
+
+- **Left: Markdown editor** - edit the full brief text
+- **Right: Live preview** - see the formatted output
+
+Changes save directly to the CMS.
+
+## How Briefs Appear on the Pitch Site
+
+Briefs render with a dedicated layout - white background with a table of contents sidebar for easy navigation. They sit inside the standard pitch navigation so prospects can move between the brief and other pages in the package.
+
+All briefs serve from the same URL pattern as other pages: `/c/[token]/p/[slug]`.
+
+## Adding Briefs to Packages
+
+Briefs appear in the package drawer alongside ideas, sales pages, and partner pages. Add them to a package to include them in the curated experience you share with prospects.

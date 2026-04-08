@@ -1,0 +1,62 @@
+---
+title: Client Intelligence
+description: Add notes and structured intelligence entries to enrich AI-generated content for each client.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Client Intelligence lets you capture context about a client beyond what automated research finds. Sales notes, meeting takeaways, competitive intel, and article summaries all feed into generation to produce more targeted content.
+
+## Where to Find It
+
+The Intelligence tab is on each client's hub page. Click into any client and select the **Intelligence** tab.
+
+## Two Types of Intelligence
+
+### Quick Notes
+
+Free-form markdown notes about the client. Use these for:
+
+- Meeting notes and takeaways
+- Sales observations ("CFO is the real decision-maker")
+- Competitive context ("They're evaluating Accenture for the same work")
+- Internal strategy notes
+
+Quick notes are saved as rich text on the client record.
+
+### Structured Entries
+
+Tagged intelligence items with metadata. Each entry has:
+
+| Field | Description |
+|-------|-------------|
+| **Type** | `news`, `earnings`, `strategy`, `competitive`, `technology`, `culture` |
+| **Title** | Short description of the intelligence |
+| **Content** | The actual insight or summary |
+| **Source URL** | Where this came from (optional) |
+| **Date** | When this was captured |
+
+#### URL Summarization
+
+Paste a URL into the source field and click **Summarize** - the system fetches the page and uses AI to generate a structured summary. This is useful for quickly capturing:
+
+- News articles about the company
+- Blog posts or press releases
+- Earnings call transcripts
+- Industry analyst reports
+
+The AI extracts the key points and creates a structured entry automatically.
+
+## How Intelligence Feeds Generation
+
+When you generate ideas, sales pages, partner pages, or briefs, the system:
+
+1. Loads all intelligence entries and notes for that client
+2. Formats them as additional context appended to the source of truth
+3. Claude uses this context alongside research to produce more targeted content
+
+More intelligence = better output. A client with detailed notes and 5-10 structured entries will get noticeably more specific, relevant pitches than one with research alone.
+
+<Aside type="tip">
+Add intelligence **before** generating content. The best time is right after research - review the source of truth, then add anything the automated research missed. Meeting notes, internal observations, and competitive intel make the biggest difference.
+</Aside>
