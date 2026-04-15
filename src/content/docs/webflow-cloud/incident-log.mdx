@@ -1,0 +1,32 @@
+---
+title: Incident Log
+description: Chronological record of Webflow Cloud build/deploy incidents affecting admin/ and site/.
+---
+
+Chronological record of deploy incidents, version regressions, and builder behavior changes. Append-only — never edit past entries.
+
+---
+
+## 2026-04-11 — Astro 6.x rejection
+
+**Impact:** 6 consecutive admin deploys failed (commits from `4dbb525` through `91e007b`). Production admin frozen at `a4618c5` (Premium Note template, April 10).
+
+**Error:**
+> Astro 6.x is not yet supported by Webflow Cloud. Please use Astro 5.x. You can downgrade by running: npm install astro@^5.0.0
+
+**Root cause:** Webflow Cloud's builder added an Astro 6.x guard. Cloudflare acquired Astro on 2026-01-16 and Astro 6 entered beta around the same time. Webflow's adapter/runtime is not yet validated against Astro 6.x.
+
+**Not a code change on our side** — the `admin/` `package.json` has had `"astro": "^6.0.5"` since the initial commit. Successful deploys through April 10 happened because the guard did not exist yet.
+
+**Status (as of 2026-04-15):** Chris has an open support ticket with Webflow. **Not downgrading** until we hear back — a 6→5 regression is significant work (content layer, session API, vite plugin shifts) and should only happen if Webflow confirms no imminent 6.x support.
+
+**Workaround:** None. Unshipped work on `main`:
+- Session 27 outreach UX improvements
+- Session 28 security hardening (CSRF, rate limiting, error sanitization)
+- Session 29 performance optimization (parallel CMS calls, TTL caching, schema doc)
+
+**Trace ID (admin deploy `91e007b`):** `388785662812514010`
+
+**Context links:**
+- [Cloudflare acquires Astro (Jan 16, 2026)](https://blog.cloudflare.com/astro-joins-cloudflare/)
+- [Webflow Cloud framework customization docs](https://developers.webflow.com/webflow-cloud/environment/framework-customization)

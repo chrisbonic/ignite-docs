@@ -1,0 +1,26 @@
+---
+title: Session Manifests
+description: Shipped manifests — what landed in each session, written by the wrap-up skill.
+---
+
+Every session ends with a `wrap-up` ritual that produces a **shipped manifest** — a technical record of what landed in the repo, what didn't ship, and how a future session should pick up.
+
+## How manifests are authored
+
+The `wrap-up` skill (`.claude/skills/wrap-up/`) writes to `sessions/session-{N}-{topic}.mdx` at session end. Each manifest includes:
+
+- **Commit SHAs + date** at the top
+- **What shipped** — concrete changes (files, features, behavior)
+- **Not yet validated** — built but not QA'd live
+- **Known deferred** — what the session did not ship, with reasons
+- **How to apply** — one line for future-Claude ("next session should X")
+
+These are the **canonical record** of repo evolution. More durable than commit messages, more structured than session-start notes.
+
+## Active manifests
+
+_No manifests yet. The first wrap-up will create session-30 or whichever session runs the skill first._
+
+## Historical session-start notes
+
+`docs/archive/SESSION-5-START.md` through `SESSION-24-START.md` are the previous convention — session **start** notes written at the beginning of a session. These are frozen history. Going forward, the manifest convention (written at the **end** of a session) replaces them.

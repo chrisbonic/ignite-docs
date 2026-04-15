@@ -47,6 +47,33 @@ export default defineConfig({
 						{ label: 'Pitch Agent', slug: 'agents/pitch-agent' },
 					],
 				},
+				{
+					label: 'Roadmap',
+					items: [
+						{ label: 'Overview', slug: 'roadmap' },
+						{ label: 'Archived Reviews', slug: 'roadmap/_archive' },
+					],
+				},
+				{
+					label: 'Sessions',
+					items: [
+						{ label: 'Overview', slug: 'sessions' },
+					],
+				},
+				{
+					label: 'Webflow Cloud',
+					items: [
+						{ label: 'Overview', slug: 'webflow-cloud' },
+						{ label: 'Incident Log', slug: 'webflow-cloud/incident-log' },
+					],
+				},
+				{
+					label: 'Runbooks',
+					items: [
+						{ label: 'Overview', slug: 'runbooks' },
+						{ label: 'Multi-Repo Git Flow', slug: 'runbooks/multi-repo-git' },
+					],
+				},
 				// {
 				// 	label: 'Pitch Formula',
 				// 	items: [

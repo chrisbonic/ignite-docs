@@ -1,0 +1,87 @@
+---
+title: Multi-Repo Git Flow
+description: How to commit, push, and keep shared-lib changes consistent across admin/, site/, compute/, and the parent repo.
+---
+
+This workspace has **4 independent git scopes**. Every commit requires knowing which repo you're targeting.
+
+## The scopes
+
+| Path | Git repo | Deploy target |
+|------|----------|---------------|
+| `/` (parent) | `ignite-webflow-sales` | includes `compute/` and `docs/` — Vercel rebuilds compute on push |
+| `admin/` | `ignite-webflow-pitch-admin` | Webflow Cloud rebuilds admin on push |
+| `site/` | `ignite-webflow-pitch-site` | Webflow Cloud rebuilds site on push |
+| `docs-site/` | `ignite-docs` | Starlight docs site — separate remote (`chrisbonic/ignite-docs`) |
+
+`compute/` has **no separate `.git`** — it lives inside the parent.
+
+## The critical rule
+
+**Always `cd` to the correct git root before running `git` commands.**
+
+Running `git status` from `compute/` operates on the **parent** repo (because there's no `.git` in `compute/`). This is a common source of surprise commits — you think you're scoped to compute, but `git add .` stages parent-level files too.
+
+## Routine flows
+
+### Committing a compute change
+
+```bash
+cd /Users/chrislutz/Documents/Github/ignite-webflow-sales
+git status                      # verify scope
+git add compute/<specific-files>
+git commit -m "..."
+git push                        # triggers Vercel rebuild
+```
+
+### Committing an admin change
+
+```bash
+cd /Users/chrislutz/Documents/Github/ignite-webflow-sales/admin
+git status                      # admin-scoped
+git add <specific-files>
+git commit -m "..."
+git push                        # triggers Webflow Cloud rebuild
+```
+
+### Committing a site change
+
+```bash
+cd /Users/chrislutz/Documents/Github/ignite-webflow-sales/site
+git status
+git add <specific-files>
+git commit -m "..."
+git push                        # triggers Webflow Cloud rebuild
+```
+
+### Committing docs-site
+
+```bash
+cd /Users/chrislutz/Documents/Github/ignite-webflow-sales/docs-site
+git status
+git add <specific-files>
+git commit -m "..."
+git push                        # pushes to ignite-docs remote
+```
+
+## Shared library propagation
+
+The shared library is **duplicated**, not symlinked:
+
+- `admin/src/lib/shared/`
+- `site/src/lib/shared/`
+- `compute/lib/shared/`
+
+When you modify shared code, you must:
+
+1. Make the change in the repo you're working in
+2. **Copy the exact diff to the other two locations**
+3. Commit in each repo independently (3 commits, 3 pushes)
+
+No workspace protocol, no pnpm links — each repo is self-contained for Webflow Cloud's npm-only builder.
+
+## Safety rules
+
+1. **Never `git add -A` or `git add .` without checking `git status` first.** Three repos deep, it's easy to stage the wrong files.
+2. **Never `git push --force` without explicit approval.** Protected on main.
+3. **Main = production.** Admin and site deploy targets push to `main`. Branch strategy (dev/main split) is pending. Until then, every push to `admin/main` or `site/main` rebuilds production.

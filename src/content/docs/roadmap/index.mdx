@@ -1,0 +1,37 @@
+---
+title: Roadmap & UX Reviews
+description: Active planning docs, UX reviews, and feature drafts. Reviews move to _archive/ when their feature ships.
+---
+
+Active planning for upcoming features. Every major change gets a UX review here **before** code is written.
+
+## How reviews are authored
+
+The `ux-review` skill (`.claude/skills/ux-review/`) produces reviews in this directory using a hybrid format:
+
+- **MDX with embedded Mermaid diagrams** for flows, state machines, architecture
+- **ASCII/Markdown tables** for structural wireframes
+- **Inline HTML+Tailwind blocks** for compact hi-fi mockups (render inside Starlight)
+- **Sibling `.html` files** for pixel-perfect standalone previews (open directly in browser)
+
+Each review folder contains:
+
+```
+roadmap/session-{N}-{feature}/
+├── index.mdx                 ← the review (flows, decisions, narrative)
+├── flow-*.mmd                ← Mermaid sources (optional, if large)
+└── screen-*.html             ← standalone hi-fi mockups (only when pixel-perfect matters)
+```
+
+## Lifecycle
+
+1. **Author** — `ux-review` skill creates `session-{N}-{feature}/index.mdx` + artifacts
+2. **Review** — Chris reads, edits, approves
+3. **Implement** — code gets written against the approved review
+4. **Archive** — `wrap-up` skill moves the folder to `_archive/{date}-{feature}/` when the feature ships
+
+Archived reviews are **frozen record** — never edited. Historical truth.
+
+## Active reviews
+
+_No active reviews yet. The next major feature will create the first one._

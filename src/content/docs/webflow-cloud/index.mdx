@@ -1,0 +1,29 @@
+---
+title: Webflow Cloud
+description: Deployment reality, build constraints, version compatibility, and incident log for admin/ and site/ repos.
+---
+
+`admin/` and `site/` deploy to Webflow Cloud (Cloudflare Workers for Platforms). This section captures **what is actually required to ship**, separate from aspirational architecture docs.
+
+## Canonical rules
+
+All build config rules live in [.claude/rules/webflow-cloud.md](../../../../.claude/rules/webflow-cloud.md) and are auto-loaded by Claude Code when working in `admin/` or `site/`. This section is the human-readable mirror for reference and onboarding.
+
+## Key constraints
+
+- **Adapter:** `@astrojs/cloudflare@^12` (not v13)
+- **Base path:** `base: 'CLOUD_MOUNT_PATH'` — Webflow replaces at build time
+- **Route paths must NOT include the mount prefix** — `/c/c/...` 404 bug
+- **wrangler.json** (not `.jsonc`), requires `name` and `main`
+- **npm only** — no pnpm, no workspace protocol
+- **20s request timeout, 30s CPU cap** — anything longer offloads to compute
+- **SSE streams with ≤2s heartbeats** + chunk-boundary buffering for all long endpoints
+
+## Sub-pages
+
+- **[Incident log](./incident-log)** — version regressions, builder changes, outages
+
+## See also
+
+- [Operations → Deployment](../operations/deployment)
+- [Architecture → System Design](../architecture/system-design)
