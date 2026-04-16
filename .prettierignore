@@ -1,0 +1,10 @@
+node_modules
+dist
+.astro
+.vscode
+package-lock.json
+*.min.js
+*.min.css
+
+# Frozen
+src/content/docs/**/_archive/**
