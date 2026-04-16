@@ -1,0 +1,84 @@
+---
+title: Session 32 — Outreach Sender Presets + Workspace Cleanup
+description: Multi-sender outreach (Jesper default + Chris), 20 type errors fixed across admin/site, Prettier pass across all 4 repos, new-developer runbook.
+---
+
+## Commits shipped (2026-04-15 → 2026-04-16)
+
+**parent:**
+- `293e205` — Session 32: compute format pass + type fix + Astro version note
+
+**admin:**
+- `9e2a1f8` — Session 32: outreach sender presets + type cleanup + Prettier pass
+
+**site:**
+- `64157a1` — Session 32: type fix + workspace-wide Prettier format pass
+
+**docs-site:**
+- `af4db62` — Session 32: new-developer runbook + workspace-wide format pass
+
+---
+
+## What shipped
+
+### 1. Outreach sender presets
+
+The outreach flow previously had a single hardcoded sender ("Chris Lutz / Head of Sales") embedded in [admin/src/pages/api/outreach/send.ts](https://github.com/chrisbonic/ignite-webflow-pitch-admin/blob/main/src/pages/api/outreach/send.ts). Now:
+
+- **New file:** `admin/src/data/senders.json` — array of sender presets (Jesper first = default, Chris second). Each entry: `id, name, title, bio, email, linkedinUrl, initials, calendarUrl`.
+- **Send form:** `/outreach/send` got a new "From" dropdown between Context and Model Selection. Shows `Name — Title` per option, defaults to first entry.
+- **API:** `api/outreach/send.ts` now imports the JSON, exposes `resolveSender(senderId)`, falls back to first preset if missing/unknown.
+- **Edit form:** `clients/[id]/pages/[pageId].astro` got a "Load preset" dropdown at the top of the Sender section. Picking one populates all 6 fields client-side (name, title, bio, email, linkedin, calendar). Save flow unchanged — still submits individual fields.
+
+Existing pages keep their saved sender data. To change, open the edit form, pick a preset, save.
+
+### 2. Type error cleanup
+
+Admin: 17 errors → 0. Site: 3 errors → 0. Both `npm run typecheck` clean.
+
+- `claude.ts` (admin + site + compute) — guard `value.inputTokens ?? 0` and `value.outputTokens ?? 0` (types are `number | undefined`)
+- `FormField.astro` (admin) — `type` prop widened from `string` to `HTMLInputTypeAttribute`
+- `agent-worker-pitch.ts` (admin) — serialize `ResearchQuote[]` to string before passing to `buildSeedMessages` / `buildFullIdeaMessages` (was passing the raw array, hit a runtime surprise that TS caught)
+- `pages.astro` (admin) — widen `UnifiedPage.type` union to include `'client-brief'` and `'intro'` (was missing two of the five `PageType` values)
+- `[id].astro` (admin) — fix `p.archived` → `p.status === 'archived'` (Page has no `archived` field — it's in `status`); add `'intro'` to the content-type cast so the template's comparison chain narrows correctly; typed `slideGroups` Map via a `groupFeedbackBySlide(entries)` helper in frontmatter (inline `Map<string, FeedbackEntry[]>` syntax breaks the Astro JSX parser)
+- `generate-seeds.ts`, `generate-partner-angles.ts`, `generate-sales-angles.ts`, `generate-partner-page.ts`, `generate-sales-page.ts` — non-null assertions where guards exist in the outer scope but the closure loses narrowing
+- `[pageSlug].astro` (site) — optional chain on `idea?.archived` for null-safe archive check
+
+### 3. Prettier format pass
+
+`prettier --write .` applied across all four repos. New config + `.prettierignore` discipline:
+
+- Admin: 96 files reformatted, 9 added to `.prettierignore` — `prettier-plugin-astro` cannot parse HTML comments inside JSX fragments (`{isNarrative ? (<><!-- comment -->`)
+- Site: 54 files reformatted, 1 added to `.prettierignore` (`IntroPage.astro`)
+- Compute: 40 files reformatted. New `compute/.prettierrc.json` without `prettier-plugin-astro` (compute has no `.astro` files — the parent's config referenced the plugin and broke compute's run)
+- Docs-site: 35 files reformatted
+
+`npm run format:check` is green in all four. Not yet enabled in CI — would need one more commit to flip `format:check` into the GitHub Action.
+
+### 4. Other fixes
+
+- `.claude/rules/webflow-cloud.md` pre-push checklist corrected from `^6.0.5` → `^5.18.0`
+- New doc: `docs-site/src/content/docs/runbooks/new-developer.mdx` — first-week walkthrough for the developer arriving in ~2 weeks. Clone procedure, env setup, dev servers, architecture map, key rules.
+
+---
+
+## Not yet validated
+
+- **Sender presets in production** — shipped to Webflow Cloud via admin push. Local testing confirmed Jesper defaults + preset dropdown works in the edit form. Production regression test pending.
+- **The `agent-worker-pitch.ts` quoteBank serialization change** is a real behavior fix (was passing `ResearchQuote[]` to a function expecting `string` — now passes a newline-joined `"text" — speaker, source (date)` string). No agent runs have exercised this post-commit.
+
+## Known deferred
+
+- **format:check in CI** — scripts exist and pass locally, but CI still only runs `build`. One-line workflow edit pending.
+- **Senders in CMS Settings** — the JSON is file-based. If multiple admins want to manage their own senders without a deploy, this should graduate to a Settings collection. Not required now.
+- **Per-page sender-initialization from senders.json** on existing note pages — current implementation leaves saved data untouched. Picking a preset from the dropdown overwrites. No bulk "reset all sender data" tool.
+- **ESLint** — still skipped per low-stakes philosophy.
+
+## How to apply
+
+If you're reading this:
+
+- **`admin/src/data/senders.json` is the source of truth for outreach sender identities.** Add new senders by editing the JSON — no code changes needed. First entry in the array is the default.
+- **Prettier works across the workspace now.** Run `npm run format` before committing. 9 admin files + 1 site file are ignored due to the HTML-comment-in-JSX-fragment plugin limitation.
+- **Admin/site are fully type-clean.** Don't let new type errors land — `npm run typecheck` should stay green.
+- **New-developer runbook is live** at `/runbooks/new-developer`. Point the next contributor at it.
