@@ -30,3 +30,43 @@ Chronological record of deploy incidents, version regressions, and builder behav
 **Context links:**
 - [Cloudflare acquires Astro (Jan 16, 2026)](https://blog.cloudflare.com/astro-joins-cloudflare/)
 - [Webflow Cloud framework customization docs](https://developers.webflow.com/webflow-cloud/environment/framework-customization)
+
+---
+
+## 2026-04-15 — Resolution: Astro 6 → 5.18 downgrade + React deps re-added
+
+**Impact:** Sessions 27/28/29 work unblocked. Admin production moved from `a4618c5` (frozen April 10) to `9937ea8`. Site production moved from `8d86c79` to `ac803c0`.
+
+**Trigger:** Webflow support confirmed on 2026-04-15 that Astro 6.x is not supported and has no ETA.
+
+**Change 1 — Astro downgrade (both repos):**
+
+- `admin/package.json`: `astro: ^6.0.5` → `^5.18.0` (commit `80eacdf`)
+- `site/package.json`: `astro: ^6.0.5` → `^5.18.0` (commit `ac803c0`)
+- `@astrojs/cloudflare@^12.6.13` works with both majors — no adapter change needed.
+- `@astrojs/react@^5.0.3` resolved fine under Astro 5 in site/ — no integration change needed.
+- **Zero code changes.** Our API surface (routes, middleware, Cloudflare adapter, `security.checkOrigin`) is stable across Astro 5 and 6. Local `npm run build` passed first try in both repos.
+
+**Change 2 — React deps re-added to admin (commit `9937ea8`):**
+
+First admin deploy attempt on Astro 5 failed with:
+
+> `Cannot find package 'react-dom' imported from /repo/node_modules/@astrojs/react/dist/version.js`
+
+**Root cause:** Webflow Cloud's builder (v1.2.0) now auto-installs `@astrojs/react@^4.0.0` as a framework requirement ("Required for Webflow React components"). Admin had removed `react` and `react-dom` during Session 27 cleanup (commit `ac438e8`, 2026-04-10) because admin uses no React components. The builder's auto-installed React integration then failed to resolve the peer.
+
+**Fix:** Added `react: ^19.2.4` and `react-dom: ^19.2.4` back to `admin/package.json`. Site already had these. Admin deploy succeeded after push.
+
+**Lessons captured:**
+
+1. Even apps with no React components must keep `react` + `react-dom` in dependencies on Webflow Cloud. Documented in [.claude/rules/webflow-cloud.md](../../../.claude/rules/webflow-cloud.md) under "React deps — required even for non-React apps."
+2. "Your package.json works on their builder today" is not a durable contract. Their builder can change; ours is tested by the same checks that ship.
+3. The 6→5 downgrade being trivial was a genuine surprise — we had budgeted for content-layer, session-API, and vite-plugin regressions. None materialized because we don't use those APIs.
+
+**Unblocked work that now ships:**
+
+- Session 27 outreach UX improvements
+- Session 28 security hardening (CSRF, rate limiting, error sanitization)
+- Session 29 performance optimization (parallel CMS calls, TTL caching, schema doc)
+
+**Sales impact:** 4 business days of production freeze during active prospect demos. Sessions had to either avoid touching production-facing screens or demo from local admin.

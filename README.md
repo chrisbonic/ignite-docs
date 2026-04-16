@@ -1,49 +1,45 @@
-# Starlight Starter Kit: Basics
+# Ignite Studio — Documentation Site
 
-[![Built with Starlight](https://astro.badg.es/v2/built-with-starlight/tiny.svg)](https://starlight.astro.build)
+Published Starlight documentation for the Ignite Studio pitch engine. Covers admin guide, agent reference, architecture, operations, webflow-cloud incident log, runbooks, and roadmap UX reviews.
 
-```
-npm create astro@latest -- --template starlight
-```
+This is one of four git scopes in the workspace — see the [parent README](../README.md) for the full picture.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+---
 
-## 🚀 Project Structure
+## Running the docs site
 
-Inside of your Astro + Starlight project, you'll see the following folders and files:
-
-```
-.
-├── public/
-├── src/
-│   ├── assets/
-│   ├── content/
-│   │   └── docs/
-│   └── content.config.ts
-├── astro.config.mjs
-├── package.json
-└── tsconfig.json
+```bash
+npm install
+npm run dev        # http://localhost:4321
+npm run build      # static build to ./dist/
 ```
 
-Starlight looks for `.md` or `.mdx` files in the `src/content/docs/` directory. Each file is exposed as a route based on its file name.
+## Content layout
 
-Images can be added to `src/assets/` and embedded in Markdown with a relative link.
+```text
+src/content/docs/
+├── admin-guide/         end-user admin flows
+├── agents/              agent pipeline reference
+├── architecture/        system design, CMS schema, URL structure
+├── operations/          deployment, env config
+├── pitch-formula/       the 7-slide formula
+├── webflow-cloud/       Webflow Cloud specifics + incident-log.mdx (append-only)
+├── runbooks/            operational playbooks
+├── roadmap/             active UX reviews (move to _archive/ once shipped)
+└── sessions/            per-session shipped manifests
+```
 
-Static assets, like favicons, can be placed in the `public/` directory.
+## Editing conventions
 
-## 🧞 Commands
+- Keep frontmatter `title` and `description` intact — users bookmark these.
+- `_archive/` folders are frozen history. Do not edit in place.
+- The `sync-docs` skill (see `.claude/skills/sync-docs/` in the parent) checks for drift after a feature ships.
+- The `ux-review` skill writes to `roadmap/session-{N}-{slug}/index.mdx` before a feature is implemented.
 
-All commands are run from the root of the project, from a terminal:
+## Deploy
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+This repo pushes to `chrisbonic/ignite-docs`. Auto-deploy is not currently wired up — build and deploy manually as needed.
 
-## 👀 Want to learn more?
+---
 
-Check out [Starlight’s docs](https://starlight.astro.build/), read [the Astro documentation](https://docs.astro.build), or jump into the [Astro Discord server](https://astro.build/chat).
+Starlight docs: <https://starlight.astro.build/>
