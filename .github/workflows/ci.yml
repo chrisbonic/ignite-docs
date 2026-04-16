@@ -17,4 +17,12 @@ jobs:
           node-version: '22'
           cache: 'npm'
       - run: npm ci
-      - run: npm run build
+      - name: Format check
+        if: always()
+        run: npm run format:check
+      - name: Typecheck
+        if: always()
+        run: npm run typecheck
+      - name: Build
+        if: always()
+        run: npm run build
