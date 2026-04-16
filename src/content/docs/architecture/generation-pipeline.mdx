@@ -17,10 +17,10 @@ The platform uses **Claude API** for content generation and **Perplexity Sonar**
 
 ## Two Pipeline Modes
 
-| Mode | Entry Point | Backend | Use Case |
-|------|-------------|---------|----------|
-| **Agent Mode** | Admin `/agent.astro` | Admin SSE (direct) | Single URL, interactive |
-| **Pitch Agent** | Admin `/agents/pitch.astro` | Compute service (Vercel) | Batch, multi-URL |
+| Mode            | Entry Point                 | Backend                  | Use Case                |
+| --------------- | --------------------------- | ------------------------ | ----------------------- |
+| **Agent Mode**  | Admin `/agent.astro`        | Admin SSE (direct)       | Single URL, interactive |
+| **Pitch Agent** | Admin `/agents/pitch.astro` | Compute service (Vercel) | Batch, multi-URL        |
 
 **Agent Mode** runs the full pipeline as a single SSE stream on the admin server. It does NOT use the compute service.
 
@@ -30,27 +30,28 @@ The platform uses **Claude API** for content generation and **Perplexity Sonar**
 
 The compute service runs specific generation tasks via `POST /api/generate/start` + `GET /api/generate/status` polling:
 
-| Type | Purpose |
-|------|---------|
-| `seeds` | Generate seed ideas from research |
-| `idea` | Generate single full idea |
-| `batch-ideas` | Generate multiple ideas sequentially |
-| `sales-angles` | Identify sales problem angles |
-| `sales-page` | Generate sales pages from angles |
-| `partner-angles` | Identify partner co-sell angles |
-| `partner-page` | Generate partner pages from angles |
-| `research` | Run Perplexity research via compute |
+| Type             | Purpose                              |
+| ---------------- | ------------------------------------ |
+| `seeds`          | Generate seed ideas from research    |
+| `idea`           | Generate single full idea            |
+| `batch-ideas`    | Generate multiple ideas sequentially |
+| `sales-angles`   | Identify sales problem angles        |
+| `sales-page`     | Generate sales pages from angles     |
+| `partner-angles` | Identify partner co-sell angles      |
+| `partner-page`   | Generate partner pages from angles   |
+| `research`       | Run Perplexity research via compute  |
 
 ## AI Models Used
 
-| Model | Purpose |
-|-------|---------|
+| Model                  | Purpose                                                |
+| ---------------------- | ------------------------------------------------------ |
 | **Claude** (Anthropic) | Content generation - ideas, sales pages, partner pages |
-| **Perplexity Sonar** | Research - company analysis, quote discovery |
+| **Perplexity Sonar**   | Research - company analysis, quote discovery           |
 
 ## Cost Tracking
 
 Every generation job tracks:
+
 - **Input tokens** and **output tokens** per AI call
 - **Estimated cost** based on model pricing
 - Aggregated cost view across all jobs
@@ -60,6 +61,7 @@ The cost dashboard at `/costs` aggregates data across all `gen:job:*` and `agent
 ## Content Rules
 
 All generated content must follow:
+
 - **Hero h1**: MAX 3 lines, ~20 characters per line
 - **Executive quotes**: Real, verified, sourced
 - **Step 4**: Always "Your Team Presents" (hardcoded)

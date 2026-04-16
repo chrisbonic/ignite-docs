@@ -14,6 +14,7 @@ All prospect-facing pages serve from a single route pattern:
 ```
 
 This single route handles everything:
+
 - **Packages**: `/c/wm-7f3a9b/p/default-55bb2`
 - **Idea pitches**: `/c/wm-7f3a9b/p/idea-a3f1b2c8`
 - **Sales pages**: `/c/wm-7f3a9b/p/page-d4e5f6a7`
@@ -24,6 +25,7 @@ There is no standalone portfolio page, no client index, no `/c/[token]/` root pa
 ## Client Tokens
 
 Every client gets a random, unguessable token:
+
 - Format: `[initials]-[hex]` (e.g., `wm-7f3a9b`, `bm-4e7c2a`)
 - Generated from company initials + random hex characters
 - Cannot be changed after client creation
@@ -33,25 +35,27 @@ Every client gets a random, unguessable token:
 
 All CMS slugs are randomly generated. This is a private, invite-only system - there's no SEO value in readable URLs.
 
-| Content Type | Slug Format | Example |
-|-------------|-------------|---------|
-| Ideas | `idea-[8 hex]` | `idea-a3f1b2c8` |
-| Pages | `page-[8 hex]` | `page-d4e5f6a7` |
-| Partner pages | `partner-[8 hex]` | `partner-b8c9d0e1` |
-| Packages | `default-[6 hex]` or `pkg-[8 hex]` | `default-c7a2f1` |
+| Content Type  | Slug Format                        | Example            |
+| ------------- | ---------------------------------- | ------------------ |
+| Ideas         | `idea-[8 hex]`                     | `idea-a3f1b2c8`    |
+| Pages         | `page-[8 hex]`                     | `page-d4e5f6a7`    |
+| Partner pages | `partner-[8 hex]`                  | `partner-b8c9d0e1` |
+| Packages      | `default-[6 hex]` or `pkg-[8 hex]` | `default-c7a2f1`   |
 
 <Aside type="caution">
-Never use fixed slugs like `default`. Webflow retains deleted slugs as tombstones - they collide on re-creation even after a CMS reset. Always use randomly generated slugs. If you hit a slug collision after a CMS reset, republish the Webflow site to clear tombstones.
+  Never use fixed slugs like `default`. Webflow retains deleted slugs as tombstones - they collide
+  on re-creation even after a CMS reset. Always use randomly generated slugs. If you hit a slug
+  collision after a CMS reset, republish the Webflow site to clear tombstones.
 </Aside>
 
 ## Mount Paths
 
 On Webflow Cloud, each service gets a mount path:
 
-| Service | Mount Path | Example URL |
-|---------|-----------|-------------|
-| Pitch Site | `/c` | `ignite-studio.co/c/wm-7f3a9b/p/default-55bb2` |
-| Admin | `/admin` | `ignite-studio.co/admin` |
+| Service    | Mount Path | Example URL                                    |
+| ---------- | ---------- | ---------------------------------------------- |
+| Pitch Site | `/c`       | `ignite-studio.co/c/wm-7f3a9b/p/default-55bb2` |
+| Admin      | `/admin`   | `ignite-studio.co/admin`                       |
 
 The mount path IS the Astro base path. Webflow Cloud replaces the literal string `CLOUD_MOUNT_PATH` in the Astro config at build time.
 
@@ -68,23 +72,26 @@ The mount path (`/c`) is added automatically. Adding it in the file path creates
 
 ## Local Development vs. Production
 
-| Context | Base Path | Example |
-|---------|-----------|---------|
-| Local dev | `/` | `localhost:4321/wm-7f3a9b/p/default-55bb2` |
-| Webflow Cloud | `/c` | `ignite-studio.co/c/wm-7f3a9b/p/default-55bb2` |
+| Context       | Base Path | Example                                        |
+| ------------- | --------- | ---------------------------------------------- |
+| Local dev     | `/`       | `localhost:4321/wm-7f3a9b/p/default-55bb2`     |
+| Webflow Cloud | `/c`      | `ignite-studio.co/c/wm-7f3a9b/p/default-55bb2` |
 
 The admin uses helper functions to build correct URLs in both contexts:
+
 - `sitePageUrl(token, slug?)` - full URL
 - `sitePagePath(token, slug?)` - path only
 - `getSiteMountPath()` - returns `/c` on Webflow Cloud, empty string locally
 
 <Aside type="tip">
-Never hardcode `/c/` when building links to the pitch site. Always use the helper functions from `config.ts`.
+  Never hardcode `/c/` when building links to the pitch site. Always use the helper functions from
+  `config.ts`.
 </Aside>
 
 ## Privacy
 
 All pages are private by design:
+
 - `noindex` meta tags prevent search engine indexing
 - No client list is rendered publicly
 - URLs are unguessable without the exact token

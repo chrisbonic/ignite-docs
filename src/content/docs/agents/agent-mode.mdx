@@ -29,21 +29,24 @@ Agent Mode is the fastest way to go from a company URL to a complete pitch packa
 
 ## Agent Mode vs. Pitch Agent
 
-| Feature | Agent Mode | Pitch Agent |
-|---------|-----------|-------------|
-| Input | Single URL | Multiple URLs |
-| Backend | Runs on admin (Webflow Cloud) | Runs on compute service (Vercel) |
-| Interaction | Real-time streaming | Prepare/review/launch workflow |
-| Review step | No seed review | Review seeds before generating |
-| Best for | Quick one-offs | Batch processing |
+| Feature     | Agent Mode                    | Pitch Agent                      |
+| ----------- | ----------------------------- | -------------------------------- |
+| Input       | Single URL                    | Multiple URLs                    |
+| Backend     | Runs on admin (Webflow Cloud) | Runs on compute service (Vercel) |
+| Interaction | Real-time streaming           | Prepare/review/launch workflow   |
+| Review step | No seed review                | Review seeds before generating   |
+| Best for    | Quick one-offs                | Batch processing                 |
 
 <Aside type="note">
-Agent Mode runs directly on the admin server (Webflow Cloud). It works within Cloudflare Workers' timeout limits by streaming results via SSE with keepalive heartbeats. For larger pipelines or multiple companies, use the [Pitch Agent](/agents/pitch-agent/).
+  Agent Mode runs directly on the admin server (Webflow Cloud). It works within Cloudflare Workers'
+  timeout limits by streaming results via SSE with keepalive heartbeats. For larger pipelines or
+  multiple companies, use the [Pitch Agent](/agents/pitch-agent/).
 </Aside>
 
 ## Default Settings
 
 Agent Mode uses sensible defaults:
+
 - **Featured partners** are auto-selected
 - **Audience lens** defaults to "Innovation Led Growth"
 - All generated ideas are included in the default package

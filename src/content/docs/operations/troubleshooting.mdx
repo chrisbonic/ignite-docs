@@ -7,13 +7,13 @@ import { Aside } from '@astrojs/starlight/components';
 
 ## Webflow Cloud Build Errors
 
-| Error | Cause | Fix |
-|-------|-------|-----|
-| `webflow.json is not present` | Directory path set during project creation | Recreate the Webflow Cloud project with an empty Directory path |
-| `Cannot find package 'react-dom'` | Missing React peer deps | `npm install react react-dom @astrojs/react` |
-| `fileURLToPath` / `node:fs` crash | Node.js APIs in runtime code | Replace all `node:` imports with in-memory alternatives |
-| `The "path" argument must be of type string` | `node:url` in worker bundle | Remove `node:url` imports from `src/` |
-| Build uses stale commit | Webflow Cloud cache | Click "Deploy latest commit" button in Webflow Cloud settings |
+| Error                                        | Cause                                      | Fix                                                             |
+| -------------------------------------------- | ------------------------------------------ | --------------------------------------------------------------- |
+| `webflow.json is not present`                | Directory path set during project creation | Recreate the Webflow Cloud project with an empty Directory path |
+| `Cannot find package 'react-dom'`            | Missing React peer deps                    | `npm install react react-dom @astrojs/react`                    |
+| `fileURLToPath` / `node:fs` crash            | Node.js APIs in runtime code               | Replace all `node:` imports with in-memory alternatives         |
+| `The "path" argument must be of type string` | `node:url` in worker bundle                | Remove `node:url` imports from `src/`                           |
+| Build uses stale commit                      | Webflow Cloud cache                        | Click "Deploy latest commit" button in Webflow Cloud settings   |
 
 ## URL Issues
 
@@ -88,6 +88,7 @@ import { Aside } from '@astrojs/starlight/components';
 ### Admin can't connect to pitch site
 
 Local dev uses different ports and no mount paths:
+
 - Admin: `localhost:4322`
 - Site: `localhost:4321`
 - Set `SITE_URL=http://localhost:4321` in admin's `.env` (no `/c`)
@@ -97,5 +98,7 @@ Local dev uses different ports and no mount paths:
 On Cloudflare Workers, env vars are in `context.locals.runtime.env`, not `process.env`. The middleware copies them. Locally, `process.env` works normally via `.env` files.
 
 <Aside type="tip">
-When debugging, always check the Webflow Cloud build logs (accessible from the Webflow Cloud dashboard) and Vercel function logs (from the Vercel dashboard). Most issues are visible in the logs.
+  When debugging, always check the Webflow Cloud build logs (accessible from the Webflow Cloud
+  dashboard) and Vercel function logs (from the Vercel dashboard). Most issues are visible in the
+  logs.
 </Aside>

@@ -13,12 +13,12 @@ Both the admin and pitch site deploy to Webflow Cloud. Each repo maps to one Web
 
 These files must exist at each repo root:
 
-| File | Purpose | Content |
-|------|---------|---------|
-| `webflow.json` | Framework detection | `{"cloud":{"framework":"astro"}}` |
-| `wrangler.json` | Cloudflare Workers config | Must have `name` and `main` fields |
-| `package-lock.json` | npm lockfile | Generated via `npm install` (not pnpm) |
-| `astro.config.mjs` | Astro config | Uses `@astrojs/cloudflare@^12` adapter |
+| File                | Purpose                   | Content                                |
+| ------------------- | ------------------------- | -------------------------------------- |
+| `webflow.json`      | Framework detection       | `{"cloud":{"framework":"astro"}}`      |
+| `wrangler.json`     | Cloudflare Workers config | Must have `name` and `main` fields     |
+| `package-lock.json` | npm lockfile              | Generated via `npm install` (not pnpm) |
+| `astro.config.mjs`  | Astro config              | Uses `@astrojs/cloudflare@^12` adapter |
 
 ### Critical Config Rules
 
@@ -44,6 +44,7 @@ In Webflow dashboard > Site Settings > Webflow Cloud:
 - Path (Create Environment) = URL mount path on the site (`/c` or `/admin`).
 
 Setting Directory path to `admin` will cause builds to fail with "webflow.json is not present."
+
 </Aside>
 
 4. Create environment:
@@ -55,6 +56,7 @@ Setting Directory path to `admin` will cause builds to fail with "webflow.json i
 ### Build Process
 
 Webflow Cloud builds:
+
 1. Downloads repo from GitHub
 2. Detects framework from `webflow.json`
 3. Runs `npm clean-install`

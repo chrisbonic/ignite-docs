@@ -7,11 +7,11 @@ Ignite Studio runs as three independent services that work together to generate 
 
 ## The Three Services
 
-| Service | What It Does | Where It Runs |
-|---------|-------------|---------------|
-| **Admin** | Dashboard for managing clients, running research, generating content, and curating packages | Webflow Cloud (`/admin`) |
-| **Pitch Site** | What prospects see - renders branded pitch pages from CMS data | Webflow Cloud (`/c`) |
-| **Compute** | Runs long AI pipelines (2-5 min) that exceed Webflow Cloud's timeout limits | Vercel |
+| Service        | What It Does                                                                                | Where It Runs            |
+| -------------- | ------------------------------------------------------------------------------------------- | ------------------------ |
+| **Admin**      | Dashboard for managing clients, running research, generating content, and curating packages | Webflow Cloud (`/admin`) |
+| **Pitch Site** | What prospects see - renders branded pitch pages from CMS data                              | Webflow Cloud (`/c`)     |
+| **Compute**    | Runs long AI pipelines (2-5 min) that exceed Webflow Cloud's timeout limits                 | Vercel                   |
 
 ### Admin (`/admin`)
 
@@ -60,13 +60,13 @@ Prospect --> Pitch Site (Webflow Cloud /c)
 
 ## Technology Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Framework | Astro 6 (SSR) |
-| Styling | Tailwind CSS v4 |
-| CMS | Webflow CMS API |
-| Admin Hosting | Webflow Cloud (Cloudflare Workers) |
-| Site Hosting | Webflow Cloud (Cloudflare Workers) |
-| Compute Hosting | Vercel Pro |
-| AI Generation | Claude API + Perplexity Sonar |
-| Cost Tracking | Vercel KV (Redis) |
+| Layer           | Technology                         |
+| --------------- | ---------------------------------- |
+| Framework       | Astro 6 (SSR)                      |
+| Styling         | Tailwind CSS v4                    |
+| CMS             | Webflow CMS API                    |
+| Admin Hosting   | Webflow Cloud (Cloudflare Workers) |
+| Site Hosting    | Webflow Cloud (Cloudflare Workers) |
+| Compute Hosting | Vercel Pro                         |
+| AI Generation   | Claude API + Perplexity Sonar      |
+| Cost Tracking   | Vercel KV (Redis)                  |

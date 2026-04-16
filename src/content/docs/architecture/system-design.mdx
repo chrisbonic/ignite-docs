@@ -20,32 +20,32 @@ Each repo is self-contained - shared library code is duplicated in each. They bu
 
 ### Admin (Webflow Cloud)
 
-| Property | Value |
-|----------|-------|
-| **Framework** | Astro 6 (SSR) |
-| **Runtime** | Cloudflare Workers (via Webflow Cloud) |
-| **Mount Path** | `/admin` |
-| **Adapter** | `@astrojs/cloudflare@^12` |
-| **Purpose** | Client management, research, generation, content editing |
+| Property       | Value                                                    |
+| -------------- | -------------------------------------------------------- |
+| **Framework**  | Astro 6 (SSR)                                            |
+| **Runtime**    | Cloudflare Workers (via Webflow Cloud)                   |
+| **Mount Path** | `/admin`                                                 |
+| **Adapter**    | `@astrojs/cloudflare@^12`                                |
+| **Purpose**    | Client management, research, generation, content editing |
 
 ### Pitch Site (Webflow Cloud)
 
-| Property | Value |
-|----------|-------|
-| **Framework** | Astro 6 (SSR) |
-| **Runtime** | Cloudflare Workers (via Webflow Cloud) |
-| **Mount Path** | `/c` |
-| **Adapter** | `@astrojs/cloudflare@^12` |
-| **Purpose** | Render branded pitch pages for prospects |
+| Property       | Value                                    |
+| -------------- | ---------------------------------------- |
+| **Framework**  | Astro 6 (SSR)                            |
+| **Runtime**    | Cloudflare Workers (via Webflow Cloud)   |
+| **Mount Path** | `/c`                                     |
+| **Adapter**    | `@astrojs/cloudflare@^12`                |
+| **Purpose**    | Render branded pitch pages for prospects |
 
 ### Compute Service (Vercel)
 
-| Property | Value |
-|----------|-------|
-| **Framework** | Plain `@vercel/node` handlers |
-| **Runtime** | Vercel Serverless Functions (Pro plan) |
-| **Function Timeout** | 800 seconds |
-| **Purpose** | Long-running AI pipelines (Pitch Agent) |
+| Property             | Value                                   |
+| -------------------- | --------------------------------------- |
+| **Framework**        | Plain `@vercel/node` handlers           |
+| **Runtime**          | Vercel Serverless Functions (Pro plan)  |
+| **Function Timeout** | 800 seconds                             |
+| **Purpose**          | Long-running AI pipelines (Pitch Agent) |
 
 ## Why Three Services?
 
@@ -68,6 +68,7 @@ All three services share the same Webflow CMS. The admin and compute service wri
 ## Shared Library
 
 Each repo contains an identical copy of the shared library:
+
 - `admin/src/lib/shared/`
 - `site/src/lib/shared/`
 - `compute/lib/shared/`

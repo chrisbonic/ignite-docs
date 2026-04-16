@@ -64,12 +64,15 @@ The Pitch Agent uses 3-layer URL validation:
 3. **Pipeline early-exit** - if the URL is bogus, the job fails fast before burning AI tokens
 
 <Aside type="tip">
-Always use the company's main website URL (e.g., `https://walmart.com`), not a specific page or subpage. The research pipeline needs the top-level domain to find comprehensive company information.
+  Always use the company's main website URL (e.g., `https://walmart.com`), not a specific page or
+  subpage. The research pipeline needs the top-level domain to find comprehensive company
+  information.
 </Aside>
 
 ## Cost Tracking
 
 Every Pitch Agent job tracks:
+
 - **Input tokens** and **output tokens** per AI call
 - **Estimated cost** based on model pricing
 - **Total cost** for the entire pipeline run
@@ -83,6 +86,7 @@ Completed jobs are stored in the compute service's KV store. You can view past j
 ## Error Handling
 
 If a job fails mid-pipeline:
+
 - The error is recorded on the job
 - Other jobs continue processing
 - You can retry failed jobs without re-running successful ones

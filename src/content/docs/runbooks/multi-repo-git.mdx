@@ -7,12 +7,12 @@ This workspace has **4 independent git scopes**. Every commit requires knowing w
 
 ## The scopes
 
-| Path | Git repo | Deploy target |
-|------|----------|---------------|
-| `/` (parent) | `ignite-webflow-sales` | includes `compute/` and `docs/` — Vercel rebuilds compute on push |
-| `admin/` | `ignite-webflow-pitch-admin` | Webflow Cloud rebuilds admin on push |
-| `site/` | `ignite-webflow-pitch-site` | Webflow Cloud rebuilds site on push |
-| `docs-site/` | `ignite-docs` | Starlight docs site — separate remote (`chrisbonic/ignite-docs`) |
+| Path         | Git repo                     | Deploy target                                                     |
+| ------------ | ---------------------------- | ----------------------------------------------------------------- |
+| `/` (parent) | `ignite-webflow-sales`       | includes `compute/` and `docs/` — Vercel rebuilds compute on push |
+| `admin/`     | `ignite-webflow-pitch-admin` | Webflow Cloud rebuilds admin on push                              |
+| `site/`      | `ignite-webflow-pitch-site`  | Webflow Cloud rebuilds site on push                               |
+| `docs-site/` | `ignite-docs`                | Starlight docs site — separate remote (`chrisbonic/ignite-docs`)  |
 
 `compute/` has **no separate `.git`** — it lives inside the parent.
 

@@ -6,19 +6,23 @@ description: Unblocked 4-day admin deploy freeze. Downgraded Astro, restored Rea
 ## Commits shipped (2026-04-15)
 
 **admin:**
+
 - `80eacdf` — Downgrade Astro 6.x → 5.18 for Webflow Cloud compatibility
 - `9937ea8` — Add react + react-dom deps for Webflow Cloud builder
 - `41ce6de` — Add Prettier config, typecheck/format scripts, build-only CI
 
 **site:**
+
 - `ac803c0` — Downgrade Astro 6.x → 5.18 for Webflow Cloud compatibility
 - `3f7246c` — Add Prettier config, typecheck/format scripts, build-only CI
 
 **docs-site:**
+
 - `71292f5` — Log Astro 6→5 resolution + replace Starlight boilerplate README
 - `8a6a589` — Add Prettier config, typecheck/format scripts, build-only CI
 
 **parent:**
+
 - `a052cee` — Onboarding polish + Astro 6 incident writeup
 - `d24613e` — Add Prettier config + compute typecheck/format scripts + compute CI
 
@@ -52,6 +56,7 @@ Cannot find package 'react-dom' imported from /repo/node_modules/@astrojs/react/
 ### 3. Onboarding docs (Tier 1)
 
 New/updated files:
+
 - `/README.md` — new top-level parent README pointing at CLAUDE.md + rules + incident log
 - `docs-site/README.md` — replaced default Starlight boilerplate with project-specific intro
 - `.claude/rules/webflow-cloud.md` — Astro version section rewritten; new "React deps required" section
@@ -75,6 +80,7 @@ All four repos got GitHub Actions CI workflows that run on every push + PR to ma
 Shared `.prettierrc.json` + `.prettierignore` at parent root, mirrored in each child repo (separate git repos can't inherit). Standard config: single quotes, 2 spaces, 100-char print width, `prettier-plugin-astro` for `.astro` files.
 
 New scripts in admin/site/compute/docs-site `package.json`:
+
 - `typecheck` — `astro check` (admin/site/docs-site) or `tsc --noEmit` (compute)
 - `format` — `prettier --write .`
 - `format:check` — `prettier --check .`

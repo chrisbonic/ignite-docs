@@ -7,95 +7,99 @@ The platform uses the Webflow CMS API with four collections. Each new Webflow si
 
 ## Collections Overview
 
-| Collection | Purpose | Key Fields |
-|-----------|---------|------------|
-| **Clients** | Prospect company records | name, token, status, source-of-truth, quote-bank |
-| **Ideas** | 7-slide pitch pages (40+ fields) | hero lines, quotes, gap cards, idea visual, scenarios, steps |
-| **Pages** | Sales, partner co-sell, and package pages | hero, proof, problem, approach, CTA, partner, package fields |
-| **Partners** | Shared partner organizations | name, badge, logo, categories, active, featured |
+| Collection   | Purpose                                   | Key Fields                                                   |
+| ------------ | ----------------------------------------- | ------------------------------------------------------------ |
+| **Clients**  | Prospect company records                  | name, token, status, source-of-truth, quote-bank             |
+| **Ideas**    | 7-slide pitch pages (40+ fields)          | hero lines, quotes, gap cards, idea visual, scenarios, steps |
+| **Pages**    | Sales, partner co-sell, and package pages | hero, proof, problem, approach, CTA, partner, package fields |
+| **Partners** | Shared partner organizations              | name, badge, logo, categories, active, featured              |
 
 ## Clients Collection
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `name` | PlainText | Company display name |
-| `token` | PlainText | Unguessable URL token (e.g., `wm-7f3a9b`) |
-| `tagline` | PlainText | Portfolio tagline |
-| `description` | PlainText | Company about/mission |
-| `nav-context` | PlainText | Nav bar label |
-| `company-url` | PlainText | Company website URL |
-| `book-call-url` | Link | Booking page URL |
-| `logo-url` | PlainText | Client logo image URL |
-| `status` | Option | `active` / `archived` / `draft` |
-| `source-of-truth` | RichText | Perplexity research document |
-| `quote-bank` | RichText | Verified exec quotes with sources |
-| `presentation-context` | PlainText | Meeting context, audience, constraints |
-| `partner-1..4-name/desc/badge` | PlainText | Partner display fields (4 partner slots) |
+| Field                          | Type      | Description                               |
+| ------------------------------ | --------- | ----------------------------------------- |
+| `name`                         | PlainText | Company display name                      |
+| `token`                        | PlainText | Unguessable URL token (e.g., `wm-7f3a9b`) |
+| `tagline`                      | PlainText | Portfolio tagline                         |
+| `description`                  | PlainText | Company about/mission                     |
+| `nav-context`                  | PlainText | Nav bar label                             |
+| `company-url`                  | PlainText | Company website URL                       |
+| `book-call-url`                | Link      | Booking page URL                          |
+| `logo-url`                     | PlainText | Client logo image URL                     |
+| `status`                       | Option    | `active` / `archived` / `draft`           |
+| `source-of-truth`              | RichText  | Perplexity research document              |
+| `quote-bank`                   | RichText  | Verified exec quotes with sources         |
+| `presentation-context`         | PlainText | Meeting context, audience, constraints    |
+| `partner-1..4-name/desc/badge` | PlainText | Partner display fields (4 partner slots)  |
 
 ## Ideas Collection
 
 46 fields organized by slide. Each idea references a Client.
 
 ### Meta Fields
-| Field | Type | Description |
-|-------|------|-------------|
-| `client` | Reference | Link to Clients collection |
-| `number` | Number | Display order |
-| `category` | PlainText | Category label (e.g., "Revenue & Growth") |
-| `category-color` | Option | `indigo` / `purple` / `rose` / `blue` |
-| `audience-flavor` | Option | Target audience lens |
-| `archived` | Switch | Hide from public view |
+
+| Field             | Type      | Description                               |
+| ----------------- | --------- | ----------------------------------------- |
+| `client`          | Reference | Link to Clients collection                |
+| `number`          | Number    | Display order                             |
+| `category`        | PlainText | Category label (e.g., "Revenue & Growth") |
+| `category-color`  | Option    | `indigo` / `purple` / `rose` / `blue`     |
+| `audience-flavor` | Option    | Target audience lens                      |
+| `archived`        | Switch    | Hide from public view                     |
 
 ### Slide Fields (per slide)
-| Slide | Fields |
-|-------|--------|
-| **1. Hero** | `hero-line-1`, `hero-sub`, `hero-image-url`, `video-url` |
-| **2. Quote** | `quote-label`, `quote-text`, `quote-attribution`, `quote-source` |
-| **3. Gap** | `gap-line-1/2/3`, `gap-card-1..3-title/desc`, `gap-evidence-url/label` |
-| **4. Idea** | `idea-line-1/2`, `idea-description`, `idea-visual-html`, `idea-image-url/caption` |
-| **5. Scenarios** | `scenarios-headline`, `scenario-1/2-tag/title/desc` |
-| **6. Delivery** | `step-1..3-title/desc` (Step 4 is hardcoded) |
+
+| Slide            | Fields                                                                            |
+| ---------------- | --------------------------------------------------------------------------------- |
+| **1. Hero**      | `hero-line-1`, `hero-sub`, `hero-image-url`, `video-url`                          |
+| **2. Quote**     | `quote-label`, `quote-text`, `quote-attribution`, `quote-source`                  |
+| **3. Gap**       | `gap-line-1/2/3`, `gap-card-1..3-title/desc`, `gap-evidence-url/label`            |
+| **4. Idea**      | `idea-line-1/2`, `idea-description`, `idea-visual-html`, `idea-image-url/caption` |
+| **5. Scenarios** | `scenarios-headline`, `scenario-1/2-tag/title/desc`                               |
+| **6. Delivery**  | `step-1..3-title/desc` (Step 4 is hardcoded)                                      |
 
 ## Pages Collection
 
 48 fields. Serves three page types: sales, partner co-sell, and package.
 
 ### Common Fields
-| Field | Type | Description |
-|-------|------|-------------|
-| `client` | Reference | Link to Clients collection |
-| `page-type` | Option | `sales` / `partner-cosell` / `package` |
-| `status` | Option | `draft` / `published` / `archived` |
-| `number` | Number | Display order |
+
+| Field       | Type      | Description                            |
+| ----------- | --------- | -------------------------------------- |
+| `client`    | Reference | Link to Clients collection             |
+| `page-type` | Option    | `sales` / `partner-cosell` / `package` |
+| `status`    | Option    | `draft` / `published` / `archived`     |
+| `number`    | Number    | Display order                          |
 
 ### Section Fields
-| Section | Key Fields |
-|---------|------------|
-| **Hero** | `hero-headline`, `hero-subhead`, `hero-image-url`, `hero-cta-text/url` |
-| **Proof** | `proof-headline`, `proof-logos-html`, `proof-quote-text/attr/src` |
-| **Problem** | `problem-headline`, `problem-body`, `problem-cards-html` |
+
+| Section      | Key Fields                                                                          |
+| ------------ | ----------------------------------------------------------------------------------- |
+| **Hero**     | `hero-headline`, `hero-subhead`, `hero-image-url`, `hero-cta-text/url`              |
+| **Proof**    | `proof-headline`, `proof-logos-html`, `proof-quote-text/attr/src`                   |
+| **Problem**  | `problem-headline`, `problem-body`, `problem-cards-html`                            |
 | **Approach** | `approach-headline`, `approach-body`, `approach-visual-html`, `approach-steps-html` |
-| **Media** | `media-headline`, `media-image-1/2/3-url` |
-| **CTA** | `cta-headline`, `cta-body`, `cta-button-text/url`, `cta-secondary-text/url` |
-| **Partner** | `partner-focus`, `partner-logo-url`, `joint-value-prop`, partner HTML fields |
-| **Package** | `package-title`, `package-tagline`, `package-page-ids`, `package-is-default` |
+| **Media**    | `media-headline`, `media-image-1/2/3-url`                                           |
+| **CTA**      | `cta-headline`, `cta-body`, `cta-button-text/url`, `cta-secondary-text/url`         |
+| **Partner**  | `partner-focus`, `partner-logo-url`, `joint-value-prop`, partner HTML fields        |
+| **Package**  | `package-title`, `package-tagline`, `package-page-ids`, `package-is-default`        |
 
 ## Partners Collection
 
 12 fields. Shared lookup table.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `name` | PlainText | Partner display name |
-| `description` | PlainText | What this partner brings |
-| `badge` | PlainText | Badge label |
-| `logo-url` | PlainText | Logo image URL |
-| `website-url` | Link | Partner website |
-| `categories` | PlainText | Comma-separated capability tags |
-| `contact-name/email` | PlainText | Partner contact |
-| `active` | Switch | Shows in selection UI |
-| `featured` | Switch | Auto-selected for new clients |
-| `sort-order` | Number | Display order |
+| Field                | Type      | Description                     |
+| -------------------- | --------- | ------------------------------- |
+| `name`               | PlainText | Partner display name            |
+| `description`        | PlainText | What this partner brings        |
+| `badge`              | PlainText | Badge label                     |
+| `logo-url`           | PlainText | Logo image URL                  |
+| `website-url`        | Link      | Partner website                 |
+| `categories`         | PlainText | Comma-separated capability tags |
+| `contact-name/email` | PlainText | Partner contact                 |
+| `active`             | Switch    | Shows in selection UI           |
+| `featured`           | Switch    | Auto-selected for new clients   |
+| `sort-order`         | Number    | Display order                   |
 
 ## Option IDs
 

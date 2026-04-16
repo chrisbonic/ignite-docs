@@ -1,0 +1,185 @@
+---
+title: New Developer Onboarding
+description: First-week walkthrough — clone all repos, configure environments, run locally, understand the multi-repo commit flow.
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+This guide gets a new developer from zero to running the full Ignite Studio workspace locally. Budget about 30 minutes for the initial setup, then use the rest of day one to explore the codebase.
+
+## Prerequisites
+
+- **Node.js 20+** (LTS)
+- **npm** (not pnpm — Webflow Cloud's builder requires npm)
+- **Git** with SSH access to the `chrisbonic` GitHub org
+- A text editor with TypeScript support (VS Code recommended)
+- Access to the team 1Password vault (for env credentials)
+
+## Day 1: Get Running
+
+<Steps>
+
+1. **Clone the parent workspace**
+
+   ```bash
+   git clone git@github.com:chrisbonic/ignite-webflow-sales.git
+   cd ignite-webflow-sales
+   ```
+
+   This gives you the parent repo (which contains `compute/`, `docs/`, and workspace config).
+
+2. **Clone the child repos inside the parent**
+
+   ```bash
+   git clone git@github.com:chrisbonic/ignite-webflow-pitch-admin.git admin
+   git clone git@github.com:chrisbonic/ignite-webflow-pitch-site.git site
+   git clone git@github.com:chrisbonic/ignite-docs.git docs-site
+   ```
+
+   Your directory should now look like:
+
+   ```
+   ignite-webflow-sales/
+   ├── admin/          ← separate git repo
+   ├── site/           ← separate git repo
+   ├── compute/        ← part of parent git (NOT a separate repo)
+   ├── docs-site/      ← separate git repo
+   ├── docs/           ← part of parent git
+   └── CLAUDE.md
+   ```
+
+3. **Install dependencies in each project**
+
+   ```bash
+   cd admin && npm install && cd ..
+   cd site && npm install && cd ..
+   cd compute && npm install && cd ..
+   cd docs-site && npm install && cd ..
+   ```
+
+4. **Set up environment files**
+
+   Copy `.env.example` to `.env` in each project that has one:
+
+   ```bash
+   cp admin/.env.example admin/.env
+   cp site/.env.example site/.env
+   cp compute/.env.example compute/.env
+   ```
+
+   Get the actual credentials from the team vault (1Password). See [Environment Config](/operations/environment-config) for what each variable does.
+
+   <Aside type="caution">
+     Use the **test environment** credentials (CMS Install Test site) for local development. Never
+     use production credentials locally. The `.env` files have a header comment indicating which
+     environment they target.
+   </Aside>
+
+5. **Start the dev servers**
+
+   In separate terminals:
+
+   ```bash
+   # Terminal 1: Admin (port 4322)
+   cd admin && npm run dev
+
+   # Terminal 2: Site (port 4321)
+   cd site && npm run dev
+   ```
+
+   Open `http://localhost:4322` for the admin and `http://localhost:4321` for the pitch site.
+
+   <Aside type="note">
+     The compute service does NOT run locally. It deploys to Vercel and the admin calls it remotely.
+     See the compute section below for details.
+   </Aside>
+
+6. **Verify the build works**
+
+   ```bash
+   cd admin && npm run build
+   cd ../site && npm run build
+   cd ../compute && npm run build   # runs tsc --noEmit
+   cd ../docs-site && npm run build
+   ```
+
+   All four should complete without errors.
+
+</Steps>
+
+## Understanding the Architecture
+
+Read these in order:
+
+1. **`CLAUDE.md`** (parent root) — The source of truth for the whole system. Architecture, URL structure, brand rules, shared library.
+2. **[System Design](/architecture/system-design)** — How admin, site, and compute fit together.
+3. **[Multi-Repo Git Flow](/runbooks/multi-repo-git)** — The most important operational knowledge. Read this before your first commit.
+
+### What each project does
+
+| Project      | What it is                                                                          | Who uses it                  | Runs on                            |
+| ------------ | ----------------------------------------------------------------------------------- | ---------------------------- | ---------------------------------- |
+| `admin/`     | Password-protected admin app. Manages clients, generates content, reviews.          | You and the sales team       | Webflow Cloud (Cloudflare Workers) |
+| `site/`      | The pitch site. What prospects see. SSR renders CMS content on every request.       | Prospects (via private URLs) | Webflow Cloud (Cloudflare Workers) |
+| `compute/`   | Agent compute backend. Runs long AI pipelines that exceed Cloudflare's 20s timeout. | Called by admin only         | Vercel Pro (serverless)            |
+| `docs-site/` | This documentation site. Starlight (Astro).                                         | Internal team                | Separate deploy                    |
+
+### Where compute fits
+
+Compute is the only project you **cannot run locally**. It's a set of Vercel serverless functions that the admin calls remotely. The workflow:
+
+1. Make changes to `compute/`
+2. Commit from the **parent** root: `cd ignite-webflow-sales && git add compute/... && git commit`
+3. Push the parent repo — Vercel auto-deploys
+4. Test by using the admin UI (which calls compute's API)
+
+The admin's `AGENT_COMPUTE_URL` env var points to the deployed compute service.
+
+## Available Scripts
+
+Every project has these npm scripts:
+
+| Script                 | What it does                                                                     |
+| ---------------------- | -------------------------------------------------------------------------------- |
+| `npm run dev`          | Start local dev server (admin, site, docs-site)                                  |
+| `npm run build`        | Production build (all four)                                                      |
+| `npm run typecheck`    | Type checking - `astro check` (admin/site/docs-site) or `tsc --noEmit` (compute) |
+| `npm run format`       | Format all files with Prettier                                                   |
+| `npm run format:check` | Check formatting without writing                                                 |
+
+## Quality Tools
+
+- **TypeScript checking** — `npm run typecheck` in each repo. Currently 0 errors across admin and site.
+- **Prettier** — Configured with `prettier-plugin-astro`. Run `npm run format` before committing.
+- **CI** — GitHub Actions runs `npm run build` on every push to main. Advisory only — a red check does not block anything.
+- **No ESLint** — deliberate choice. `astro check` + Prettier cover what we need without the config overhead.
+
+## The Shared Library
+
+The shared library is **duplicated** across three locations:
+
+- `admin/src/lib/shared/`
+- `site/src/lib/shared/`
+- `compute/lib/shared/`
+
+These are identical copies. When you change shared code, you must update all three and commit in each repo. There's no symlink or workspace protocol because Webflow Cloud requires each project to be fully self-contained.
+
+See [Multi-Repo Git Flow](/runbooks/multi-repo-git) for the commit procedure.
+
+## Key Rules to Internalize
+
+These come up repeatedly. Internalize them early:
+
+1. **Astro 5 only.** Admin and site are pinned to `^5.18.0`. Webflow Cloud does not support Astro 6. Do not bump.
+2. **Keep react/react-dom.** Both admin and site have React deps even though they use no React components. Webflow's builder requires them.
+3. **Never hardcode IDs.** No site IDs, collection IDs, or option IDs in source code. Everything resolves at runtime.
+4. **Slugs are random.** Never use fixed slugs like `default`. Webflow retains tombstones that cause collisions.
+5. **Main = production.** Pushing to `admin/main` or `site/main` triggers a production deploy. Be deliberate.
+6. **4 git scopes.** Always `cd` to the right root before running git commands. `compute/` is inside the parent - it has no `.git`.
+
+## Day 2+: Explore
+
+- Walk through a client flow: create a client in admin, run research, generate ideas, view on the pitch site
+- Read the [7-Slide Pitch Formula](/pitch-formula/seven-slides) to understand what the generated content looks like
+- Look at the [Generation Pipeline](/architecture/generation-pipeline) to understand the AI workflow
+- Browse the agent code in `admin/src/lib/agent-worker-pitch.ts` for the full pipeline logic

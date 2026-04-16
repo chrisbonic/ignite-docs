@@ -10,6 +10,7 @@ Packages are the entry point for prospects. When you share a URL with someone, y
 ## Default Package
 
 Every client gets a **default package** when created. The default package:
+
 - Is the "home page" for the client's pitch site
 - Automatically includes all published ideas
 - Shows partner cards and client branding
@@ -19,6 +20,7 @@ Every client gets a **default package** when created. The default package:
 From the client hub, go to **Packages** and click **New Package**.
 
 You can create focused packages for different audiences:
+
 - **CTO Innovation Brief** - technology-focused ideas only
 - **Marketing Transformation** - growth and engagement ideas
 - **Partner Co-sell Package** - ideas + partner page for a specific partner
@@ -34,6 +36,7 @@ Each package has:
 ## Managing Package Contents
 
 Packages contain an ordered list of items. Each item can be:
+
 - An **idea** (7-slide pitch page)
 - A **sales page**
 - A **partner co-sell page**
@@ -41,12 +44,14 @@ Packages contain an ordered list of items. Each item can be:
 The order you set is the order prospects see them. Put your strongest content first.
 
 <Aside type="tip">
-A good package structure: open with a sales page (frame the problem), follow with 3-5 of your strongest ideas, and optionally close with a partner co-sell page.
+  A good package structure: open with a sales page (frame the problem), follow with 3-5 of your
+  strongest ideas, and optionally close with a partner co-sell page.
 </Aside>
 
 ## Package URLs
 
 Every package gets an unguessable URL:
+
 ```
 /c/[clientToken]/p/[packageSlug]
 ```
@@ -54,12 +59,15 @@ Every package gets an unguessable URL:
 For example: `/c/wm-7f3a9b/p/default-c7a2f1`
 
 <Aside type="caution">
-Package slugs are randomly generated (e.g., `default-c7a2f1`). Never use fixed slugs like `default` - Webflow retains deleted slugs as tombstones that cause collisions if you try to recreate them.
+  Package slugs are randomly generated (e.g., `default-c7a2f1`). Never use fixed slugs like
+  `default` - Webflow retains deleted slugs as tombstones that cause collisions if you try to
+  recreate them.
 </Aside>
 
 ## Navigation
 
 When a prospect opens a package:
+
 - They see the portfolio page with all included items
 - Clicking an item opens it full-screen
 - The **Opportunities Drawer** lets them browse back to other items

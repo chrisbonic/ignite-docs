@@ -40,11 +40,11 @@ AGENT_COMPUTE_SECRET=<shared bearer token>
 
 The `SITE_URL` variable tells the admin where to link for pitch site pages:
 
-| Environment | SITE_URL Value |
-|-------------|---------------|
-| Local dev | `http://localhost:4321` |
+| Environment   | SITE_URL Value                              |
+| ------------- | ------------------------------------------- |
+| Local dev     | `http://localhost:4321`                     |
 | Webflow Cloud | `https://ignite-studio.co/c` (include `/c`) |
-| Production | `https://ignite-studio.co/c` (include `/c`) |
+| Production    | `https://ignite-studio.co/c` (include `/c`) |
 
 Include the `/c` mount path for Webflow Cloud deployments. The admin uses this to auto-detect whether to include `/c/` in site page URLs.
 
@@ -82,18 +82,22 @@ KV_REST_API_TOKEN=<token>
 ```
 
 <Aside type="note">
-The compute service does NOT need Webflow CMS credentials in its own env. The admin passes CMS credentials with each request, and the compute service stores them per-job. This enables multi-environment support from a single compute deployment.
+  The compute service does NOT need Webflow CMS credentials in its own env. The admin passes CMS
+  credentials with each request, and the compute service stores them per-job. This enables
+  multi-environment support from a single compute deployment.
 </Aside>
 
 ## Environment Separation
 
-| Environment | CMS Target | Purpose |
-|-------------|-----------|---------|
-| **Test** | CMS Install Test site | Development and testing |
-| **Production** | ignite-studio.co | Live prospect pitches |
+| Environment    | CMS Target            | Purpose                 |
+| -------------- | --------------------- | ----------------------- |
+| **Test**       | CMS Install Test site | Development and testing |
+| **Production** | ignite-studio.co      | Live prospect pitches   |
 
 <Aside type="caution">
-Be careful with environment files. Test and production environments use different Webflow sites with different collection IDs and API tokens. Never point a test admin at production CMS or vice versa. Label your `.env` files clearly.
+  Be careful with environment files. Test and production environments use different Webflow sites
+  with different collection IDs and API tokens. Never point a test admin at production CMS or vice
+  versa. Label your `.env` files clearly.
 </Aside>
 
 ## Webflow Cloud Runtime
