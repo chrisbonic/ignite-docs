@@ -73,3 +73,55 @@ First admin deploy attempt on Astro 5 failed with:
 - Session 29 performance optimization (parallel CMS calls, TTL caching, schema doc)
 
 **Sales impact:** 4 business days of production freeze during active prospect demos. Sessions had to either avoid touching production-facing screens or demo from local admin.
+
+---
+
+## 2026-04-16 — Astro 6 silent enable/revert + `checkOrigin` platform incompatibility
+
+**Impact:** Every admin POST endpoint returned `403 Cross-site POST form submissions are forbidden` in production. All page edits, partner edits, and outreach saves broken. Dozens of failed save attempts from the primary operator. Discovered during active sales work.
+
+**Observed behavior:** Forms rendered fine. Clicking Save returned 403 with an Astro-generated error body. Browser Network panel showed the POST hitting `/admin/api/.../update` with a matching `Origin: https://www.ignite-studio.co` header and `:authority: www.ignite-studio.co`. Same-origin from the browser's perspective, yet Astro rejected it as cross-site.
+
+**Root cause (confirmed via instrumentation):**
+
+Webflow Cloud forwards requests to the underlying Cloudflare Worker under an **internal hostname** of the form `<worker-id>.wf-app-prod.cosmic.webflow.services` — not the public domain. Inside the Worker, `context.url.origin` resolves to that internal hostname. Astro's built-in `checkOrigin` middleware does a strict string comparison:
+
+```js
+// astro/dist/core/app/middlewares.js
+const isSameOrigin = request.headers.get('origin') === url.origin;
+```
+
+Confirmed by emitting the two values as debug response headers on a temporary deploy:
+
+- `x-debug-origin`: `https://www.ignite-studio.co`
+- `x-debug-url-origin`: `https://6293f40d-6a30-47c4-a757-fab052c7af83.wf-app-prod.cosmic.webflow.services`
+
+The two strings can never be equal on Webflow Cloud, so every POST returns 403 when `checkOrigin: true`. This is an architectural incompatibility, not a configuration problem.
+
+**Webflow-side trigger:** The incident appeared today, not earlier. Ticket #1116991 with Webflow Customer Support confirmed that Webflow **silently re-enabled Astro 6 support** between 2026-04-15 and 2026-04-16 (after telling us on 2026-04-15 that there was no ETA), then **reverted it again** without customer notification. Paul from Webflow Support: "As a follow-up, we had to revert our support for Astro 6, so please hold off on upgrading to Astro 6 until later when we've re-introduced support for Astro 6 again."
+
+We were not on Astro 6 — we were pinned to 5.18 since Session 31. But during their enable/revert window, their routing behavior shifted such that `context.url.origin` inside the Worker started reflecting the internal hostname. Before this window, admin had run with `checkOrigin: true` and all POSTs worked. After: 403 on every POST.
+
+**Fix:**
+
+1. Temporary: set `checkOrigin: false` in [admin/astro.config.mjs](https://github.com/chrisbonic/ignite-webflow-pitch-admin/blob/main/astro.config.mjs) (commit `018c205`, saves immediately restored).
+2. Instrumented middleware with debug response headers to capture the actual `url.origin` value (commit `018c205`).
+3. Confirmed root cause from the debug headers.
+4. Removed debug logging, kept `checkOrigin: false`, documented the architectural reason in source comments (commit `f511a21`).
+5. Applied `checkOrigin: false` preemptively to [site/astro.config.mjs](https://github.com/chrisbonic/ignite-webflow-pitch-site/blob/main/astro.config.mjs) (commit `eed320a`).
+6. Full incident captured in [.claude/rules/webflow-cloud.md](../../../.claude/rules/webflow-cloud.md) with a permanent "do not re-enable" directive.
+
+**Security trade-off:** Admin uses HMAC session cookies for auth, so residual CSRF risk is bounded by an already-authenticated session being tricked into submitting a crafted form elsewhere. Acceptable for a single-user invite-only admin.
+
+**Why the check can never work on Webflow Cloud:**
+
+The mismatch is not an Astro bug. Astro's same-origin check is correct — the inbound URL should equal the outbound Origin. But on Webflow Cloud, the inbound URL is rewritten to an internal hostname before it reaches our Worker, while the browser's Origin header remains the public domain. No amount of Astro configuration can bridge this. Fixing this would require either Webflow preserving the public Host header when forwarding to Workers, OR our code intercepting before Astro's middleware and synthesizing a matching URL (fragile and version-coupled).
+
+**Lessons captured:**
+
+1. **"Astro downgrade is behaviorally neutral" was an over-claim.** Session 31 asserted the 6→5 downgrade had no behavioral impact because our API surface (routes + middleware + Cloudflare adapter) was stable across both majors. We did not audit Astro's internal middleware behavior. When making such claims, scope them narrowly.
+2. **Webflow Cloud is actively thrashing platform versions without customer notification.** Between an official "no ETA" response and 24 hours later, they rolled Astro 6 out and back. Do not depend on platform behavior being stable across their silent rollouts.
+3. **Diagnose before prescribing.** First instinct during the 403 was to propose three plausible-sounding fixes. User (correctly) forced a pause to gather actual request/response data before flipping config. The real cause was not on the initial guess list.
+4. **`checkOrigin: true` is permanently incompatible with Webflow Cloud's proxy architecture** until they change how they forward the Host header. Stay off it regardless of Astro version.
+
+**Sales impact:** 1+ hour of operator-visible production breakage during active sales prep. Operator was actively trying to edit outreach pages for a prospect demo. Incident resolved with saves restored within that window.

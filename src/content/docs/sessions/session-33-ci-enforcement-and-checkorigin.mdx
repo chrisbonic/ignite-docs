@@ -1,0 +1,93 @@
+---
+title: Session 33 — CI enforcement + Astro checkOrigin incident
+description: Format/typecheck in CI across 4 repos, discovered and fixed Astro checkOrigin incompatibility with Webflow Cloud proxy, documented Webflow's silent Astro 6 rollback.
+---
+
+## Commits shipped (2026-04-16)
+
+**parent:**
+
+- `3c9bc2f` — Session 33: enable format:check in compute CI
+- `38f37cd` — Session 33: document checkOrigin + Astro 6 rollback incident
+
+**admin:**
+
+- `075fa10` — Session 33: enable format:check + typecheck in CI
+- `02ed9ca` — Session 33: add @types/node devDependency for CI
+- `018c205` — Session 33: TEMP — disable checkOrigin + add debug headers
+- `f511a21` — Session 33: document checkOrigin incompatibility, remove debug headers
+
+**site:**
+
+- `753fedd` — Session 33: enable format:check + typecheck in CI
+- `651076a` — Session 33: add @types/node devDependency for CI
+- `eed320a` — Session 33: disable checkOrigin (incompatible with Webflow Cloud)
+
+**docs-site:**
+
+- `0f95223` — Session 33: enable format:check + typecheck in CI
+
+---
+
+## What shipped
+
+### 1. CI enforcement across all 4 repos
+
+GitHub Actions workflows updated to run `format:check` and (where applicable) `typecheck` before `build`. All steps use `if: always()` so every check runs on every push, surfacing all failures instead of stopping at the first.
+
+- **compute** (parent CI workflow): `format:check` → `build` (tsc --noEmit). `format:check` is new.
+- **admin**: `format:check` → `typecheck` → `build`. Both new.
+- **site**: `format:check` → `typecheck` → `build`. Both new.
+- **docs-site**: `format:check` → `typecheck` → `build`. Both new.
+
+Philosophy stays advisory per low-stakes platform rules — checks report failure but don't gate merges beyond what `build` already did.
+
+### 2. `@types/node` explicitly declared in admin + site
+
+First CI run exposed that admin and site were implicitly resolving `@types/node` through hoisted `node_modules`. CI's clean `npm ci` environment had no such hoisting — every file reading `process.env` (middleware, auth, config, agent workers) hit `Cannot find name 'process'`. Admin CI reported 70 errors, site reported 6.
+
+Fix: `npm install --save-dev @types/node@^22.0.0` in both repos. Local typecheck now matches CI — green for the right reason, not by accident.
+
+### 3. Astro `security.checkOrigin: true` disabled in admin + site
+
+**This was not planned work.** Mid-session, production admin saves began returning 403 "Cross-site POST form submissions are forbidden" on every page and partner edit. This was a genuine production incident triggered by Webflow infrastructure changes during the session.
+
+**Root cause:** Webflow Cloud forwards requests to the underlying Cloudflare Worker under an **internal hostname** of the form `<worker-id>.wf-app-prod.cosmic.webflow.services`. Inside the Worker, `context.url.origin` resolves to that internal host. The browser's `Origin` header is the public domain (`https://www.ignite-studio.co`). Astro's built-in `checkOrigin` middleware compares them — `isSameOrigin = request.headers.get("origin") === url.origin` — and they can never be equal. Every POST gets 403.
+
+Confirmed via temporary debug response headers:
+
+- `x-debug-origin`: `https://www.ignite-studio.co`
+- `x-debug-url-origin`: `https://6293f40d-6a30-47c4-a757-fab052c7af83.wf-app-prod.cosmic.webflow.services`
+
+**Fix:** `security: { checkOrigin: false }` in both `admin/astro.config.mjs` and `site/astro.config.mjs`. Admin uses HMAC session cookies for auth, so CSRF risk is bounded by an already-authenticated session being tricked. Acceptable for a single-user invite-only admin.
+
+### 4. Incident writeup in `.claude/rules/webflow-cloud.md`
+
+Added two sections:
+
+- **Astro version postscript** — Webflow silently re-enabled Astro 6 support, then reverted it again on 2026-04-16, without customer notification. Confirmed via support ticket #1116991.
+- **`checkOrigin` must be `false`** — full architectural explanation, why it's a platform issue not a version issue, and a "do not re-enable" directive that survives future Astro version changes.
+
+Source material for the Webflow CTO meeting next week.
+
+---
+
+## Not yet validated
+
+- **`checkOrigin: false` in `site/`** — shipped but not exercised. Site has few POST endpoints today. If a future session adds one, it'll work; the CI typecheck passes.
+- **The final admin middleware revert (`f511a21`)** — removes debug response headers. Admin saves verified working before this commit (the one that kept them working). After the revert, saves should still work because `checkOrigin: false` remains. Not re-tested after the final push.
+
+## Known deferred
+
+- **Astro 6 upgrade** — blocked indefinitely on Webflow. They will not commit to a re-enable date after the silent revert. Stay on 5.18.
+- **Custom CSRF allowlist middleware** — considered as an alternative to `checkOrigin: false`. Rejected for now: small single-user admin, adding middleware that compares Origin against a hardcoded allowlist is more code to break on the next Astro/Webflow version flip. Revisit if admin grows to multi-user.
+- **Compute `strict: true` tsconfig** — was on Session 33 candidate list, deferred.
+- **Session 27 backlog** — dev-tools dashboard and related items still untouched.
+- **Webflow feedback memo** — user confirmed this was already sent during the session.
+
+## How to apply
+
+- **CI now enforces formatting + types on every push.** Don't let new format violations or type errors land. The advisory posture means they surface but don't block — fix them in the next commit, not via a bypass.
+- **`checkOrigin` stays `false`** on admin and site regardless of Astro version, until Webflow changes how they forward the Host header to Workers. This is an architectural constraint, not a version compatibility one.
+- **Webflow Cloud is actively thrashing platform versions without notice.** Assume the floor can shift under you. Don't ship code that depends on niche Astro middleware behavior without verifying it survives a cold deploy.
+- **Local typecheck can lie about CI** — if a type check passes locally for the first time after adding it to CI, run it in a clean container before trusting it. Hoisted `@types/*` packages don't replicate in `npm ci`.
