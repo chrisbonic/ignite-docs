@@ -1,0 +1,109 @@
+---
+title: Session 31 — Astro 6→5 Emergency Downgrade + Workspace Polish
+description: Unblocked 4-day admin deploy freeze. Downgraded Astro, restored React deps, added top-level onboarding docs, shipped advisory CI across all four repos.
+---
+
+## Commits shipped (2026-04-15)
+
+**admin:**
+- `80eacdf` — Downgrade Astro 6.x → 5.18 for Webflow Cloud compatibility
+- `9937ea8` — Add react + react-dom deps for Webflow Cloud builder
+- `41ce6de` — Add Prettier config, typecheck/format scripts, build-only CI
+
+**site:**
+- `ac803c0` — Downgrade Astro 6.x → 5.18 for Webflow Cloud compatibility
+- `3f7246c` — Add Prettier config, typecheck/format scripts, build-only CI
+
+**docs-site:**
+- `71292f5` — Log Astro 6→5 resolution + replace Starlight boilerplate README
+- `8a6a589` — Add Prettier config, typecheck/format scripts, build-only CI
+
+**parent:**
+- `a052cee` — Onboarding polish + Astro 6 incident writeup
+- `d24613e` — Add Prettier config + compute typecheck/format scripts + compute CI
+
+---
+
+## What shipped
+
+### 1. Astro 6 → 5.18 downgrade (admin + site)
+
+Webflow support confirmed on 2026-04-15 that Astro 6.x is not supported and has no ETA. Both deploy targets unblocked by downgrading:
+
+- `admin/package.json`: `astro: ^6.0.5` → `^5.18.0`
+- `site/package.json`: `astro: ^6.0.5` → `^5.18.0`
+- `@astrojs/cloudflare@^12.6.13` kept as-is (works with both majors)
+- `@astrojs/react@^5.0.3` resolves fine under Astro 5 (site only)
+
+**Zero code changes required.** Our API surface — routes, middleware, Cloudflare adapter, `security.checkOrigin` — is stable across both majors. Local `npm run build` passed first try in both repos.
+
+### 2. React deps re-added to admin
+
+First post-downgrade admin deploy failed with:
+
+```text
+Cannot find package 'react-dom' imported from /repo/node_modules/@astrojs/react/dist/version.js
+```
+
+**Root cause:** Webflow Cloud builder v1.2.0 auto-installs `@astrojs/react@^4.0.0` as a framework requirement ("Required for Webflow React components"). Session 27 cleanup (commit `ac438e8`) had removed `react`/`react-dom` from admin because admin uses no React components. The builder's auto-install then had no peer to resolve.
+
+**Fix:** `react@^19.2.4` + `react-dom@^19.2.4` re-added to admin. Site already had them.
+
+### 3. Onboarding docs (Tier 1)
+
+New/updated files:
+- `/README.md` — new top-level parent README pointing at CLAUDE.md + rules + incident log
+- `docs-site/README.md` — replaced default Starlight boilerplate with project-specific intro
+- `.claude/rules/webflow-cloud.md` — Astro version section rewritten; new "React deps required" section
+- `docs-site/src/content/docs/webflow-cloud/incident-log.mdx` — appended 2026-04-15 resolution entry with full timeline
+
+### 4. Webflow Cloud feedback memo
+
+- `docs/webflow-cloud-astro-6-feedback.md` — ~350-line memo to Webflow Cloud product team. Covers the incident, 10 concrete platform suggestions (version guard rollout, preview environments, builder changelog, auto-injected deps documentation). Ready to share externally.
+
+### 5. Advisory CI (Tier 2)
+
+All four repos got GitHub Actions CI workflows that run on every push + PR to main. **Build-only. Advisory. Non-blocking.**
+
+- `admin/.github/workflows/ci.yml` — runs `npm run build`
+- `site/.github/workflows/ci.yml` — runs `npm run build`
+- `docs-site/.github/workflows/ci.yml` — runs `npm run build`
+- `.github/workflows/ci.yml` (parent) — runs compute `tsc --noEmit`
+
+### 6. Prettier config + new scripts
+
+Shared `.prettierrc.json` + `.prettierignore` at parent root, mirrored in each child repo (separate git repos can't inherit). Standard config: single quotes, 2 spaces, 100-char print width, `prettier-plugin-astro` for `.astro` files.
+
+New scripts in admin/site/compute/docs-site `package.json`:
+- `typecheck` — `astro check` (admin/site/docs-site) or `tsc --noEmit` (compute)
+- `format` — `prettier --write .`
+- `format:check` — `prettier --check .`
+
+Dev deps added: `@astrojs/check`, `prettier`, `prettier-plugin-astro`, `typescript` (where missing).
+
+---
+
+## Not yet validated
+
+- **Admin + site production regression test** — user is driving browser testing post-downgrade. Both deployed and built on Webflow Cloud but full-flow validation (generation pipeline, client setup, agent modes) is user's responsibility.
+- **CI workflows running green on GitHub** — commits pushed; the first workflow runs may surface environment issues (missing env vars in CI for builds that touch network, npm cache key paths, etc). If admin/site CI fails on first run it's almost certainly env-var-related, not a real problem.
+
+## Not shipped (deferred)
+
+- **Initial `prettier --write .` pass.** Would create a huge diff across hundreds of files. Bad timing during regression test. New code gets formatted on save; existing code is unchanged. Future session.
+- **ESLint.** Decision made to skip — `astro check` + Prettier cover 90% of what ESLint would flag, with far less config/maintenance burden.
+- **Typecheck in CI.** Admin has 17 pre-existing type errors, site has 3. These were always there, just now visible via `npm run typecheck`. CI still runs build-only until someone cleans them up.
+- **format:check in CI.** Will fail until the initial format pass is done.
+- **Branch protection / required status checks.** User explicitly wants advisory-only CI for now. Can be flipped later with a 2-click GitHub setting.
+- **Tighter compute tsconfig.** Currently `strict: false`. Wanted to enable but ran out of appetite for fixing more type errors in this session.
+- **Onboarding runbook** (`docs-site/src/content/docs/runbooks/new-developer.mdx`). Option B from the "what next" discussion — deferred in favor of Tier 2 CI work. User has ~2 weeks before inviting a dev.
+
+## How to apply
+
+If you are reading this:
+
+- **Do not bump Astro to 6.x in admin or site.** Webflow does not support it.
+- **Do not remove `react` or `react-dom` from admin or site `package.json`.** Webflow Cloud's builder auto-installs `@astrojs/react@^4` and requires the peer deps.
+- **CI is advisory.** A red ✗ does not block anything. Look at it, decide if it matters, move on.
+- **The Webflow feedback memo at `docs/webflow-cloud-astro-6-feedback.md` is not yet sent.** Tune the tone before sharing externally.
+- **Pre-existing type errors are known.** `npm run typecheck` in admin/site will show them; they were there before this session. Cleaning them up is Session 32 material.
