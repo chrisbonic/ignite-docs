@@ -1,0 +1,140 @@
+---
+title: Session 35 — Operator createdBy threading + logout middleware fix
+description: Thread operator identity through KV job records end-to-end; surface in Job History and AI Cost dashboards; fix logout blocking on auth middleware.
+---
+
+## Commits shipped (2026-04-17)
+
+**parent:**
+
+- `e699d8b` — Session 35: stamp operator createdBy on compute job records
+
+**admin:**
+
+- `daea9a5` — Session 35: stamp operator createdBy on jobs + show in UI
+- `b679e81` — Session 35: allow logout endpoint through auth middleware
+
+**site:** no change this session
+
+**docs-site:** wrap-up manifest (this file)
+
+---
+
+## What shipped
+
+### 1. `createdBy` threaded end-to-end on KV jobs
+
+The "light tracking" follow-through promised in Session 34. Every job record in KV is now stamped with `{ username, displayName, role }` of the operator who initiated it. Two job stores, two flows.
+
+**Type surface (new field on both interfaces):**
+
+- `AgentJob.createdBy` — [admin/src/lib/agent-jobs.ts](../../../../../admin/src/lib/agent-jobs.ts), [compute/lib/agent-jobs.ts](../../../../../compute/lib/agent-jobs.ts)
+- `GenerateJob.createdBy` — [compute/lib/generate-jobs.ts](../../../../../compute/lib/generate-jobs.ts)
+
+Shape:
+
+```ts
+createdBy?: { username: string; displayName: string; role: 'admin' | 'sales' };
+```
+
+Optional — legacy pre-35 jobs have no `createdBy` and render as `-` / `Unattributed` in rollups.
+
+**Write path (admin side):**
+
+- [admin/src/lib/agent-jobs.ts](../../../../../admin/src/lib/agent-jobs.ts) — `createJob` accepts `createdBy` arg, stamps onto job
+- [admin/src/pages/api/agents/prepare.ts](../../../../../admin/src/pages/api/agents/prepare.ts) — reads `Astro.locals.operator`, derives `createdBy`
+- [admin/src/pages/api/agent-run.ts](../../../../../admin/src/pages/api/agent-run.ts) — Agent Mode SSE proxy forwards `createdBy` in compute prepare body
+
+**Write path (compute side):**
+
+- [compute/api/agent/prepare.ts](../../../../../compute/api/agent/prepare.ts) — accepts `createdBy` in body, passes to `createJob`
+- [compute/api/generate/start.ts](../../../../../compute/api/generate/start.ts) — accepts `createdBy` in body, passes to `createGenerateJob`
+
+**Browser → compute (direct calls bypass admin server):**
+
+The Pitch Agent (`agents/pitch.astro`) and Agent Mode (`agent.astro`) browser code calls compute directly. For these, the operator is exposed to the client via a JSON script tag in [admin/src/layouts/AdminLayout.astro](../../../../../admin/src/layouts/AdminLayout.astro):
+
+```astro
+<script is:inline type="application/json" id="operator-data"
+  set:html={JSON.stringify(operator ? {...} : null)} />
+<script is:inline>
+  window.currentOperator = JSON.parse(...);
+</script>
+```
+
+All browser-initiated POSTs include `createdBy: window.currentOperator || undefined`:
+
+- [admin/src/pages/agent.astro](../../../../../admin/src/pages/agent.astro) (Agent Mode prepare)
+- [admin/src/pages/agents/pitch.astro](../../../../../admin/src/pages/agents/pitch.astro) (Pitch Agent prepare + retry)
+- [admin/src/pages/clients/[id]/generate.astro](../../../../../admin/src/pages/clients/[id]/generate.astro)
+- [admin/src/pages/clients/[id]/generate-sales.astro](../../../../../admin/src/pages/clients/[id]/generate-sales.astro)
+- [admin/src/pages/clients/[id]/generate-partner.astro](../../../../../admin/src/pages/clients/[id]/generate-partner.astro)
+- [admin/src/pages/clients/[id]/generate-brief.astro](../../../../../admin/src/pages/clients/[id]/generate-brief.astro)
+- [admin/src/pages/clients/[id]/research.astro](../../../../../admin/src/pages/clients/[id]/research.astro)
+
+### 2. Display surfaces — Jobs dashboard + Cost dashboard
+
+**[admin/src/pages/jobs.astro](../../../../../admin/src/pages/jobs.astro):**
+
+- New "Created By" column showing `displayName` + role badge (indigo for admin, teal for sales)
+- Detail panel row: `Created by: <displayName> (<username>, <role>)`
+- `colspan` bumped 7 → 8 on detail row
+
+**[admin/src/pages/costs.astro](../../../../../admin/src/pages/costs.astro):**
+
+- New "Spend by Operator" section below "Spend by Client", showing per-operator cost bars
+- "Created By" column in Recent Jobs table
+- `byOperator` rollup keyed by `username` (with `unattributed` bucket for legacy jobs)
+
+**[compute/api/jobs/list.ts](../../../../../compute/api/jobs/list.ts)** and **[compute/api/generate/costs.ts](../../../../../compute/api/generate/costs.ts)** project `createdBy` into response payloads; costs.ts adds `byOperator` aggregate.
+
+### 3. Logout middleware fix
+
+**Root cause (surfaced during prod testing):** `/api/auth/logout` was not in `PUBLIC_PATHS` in [admin/src/middleware.ts](../../../../../admin/src/middleware.ts). When a user clicked Sign Out, the middleware checked for a valid session, returned `401 {"error":"Unauthorized"}` JSON, and never let the route handler run to delete the cookie and redirect to `/login`. Added `/api/auth/logout` to `PUBLIC_PATHS`.
+
+Logout now: deletes cookie, redirects to `/login`, cleanly.
+
+---
+
+## Security posture
+
+- No CMS schema change. Jobs are KV-only. Client/Idea/Page/Partner authorship (CMS-level "Created By" field) was explicitly deferred per user direction — that's a separate scoped pass if ever needed.
+- Operator passwords remain plaintext in `OPERATORS_JSON` env var (deliberate, Session 34 choice). No change.
+- `checkOrigin` remains `false` (Session 33 incident). No change.
+
+---
+
+## Not yet validated
+
+- **End-to-end operator attribution for Jesper and Greta.** Chris tested in local + prod as admin. Sales-role logins (`jpaalsson`, `ggrainda`) have not yet been used to generate a job in prod, so per-operator rollup with multiple operators is unverified.
+- Prod logout fix was pushed as `b679e81`; should be live after the Webflow Cloud rebuild completes. Spot-check recommended.
+
+---
+
+## Known deferred
+
+- **CMS-level authorship** on Clients, Ideas, Pages, Partners (manual creation paths write directly to Webflow CMS, not KV). Would require new plain-text "Created By" fields in Webflow Designer across 4 collections plus write/read wiring. Explicitly deferred per user direction — "we have other priorities after this."
+- **Logout UX polish beyond middleware fix** — no client-side handler for the Sign Out form; currently relies on server redirect. Works but could be smoother.
+- **Session 27 deferred backlog** — dev-tools dashboard + medium ops items. Still untouched.
+- **Chrome Extension (Phase 5 from Session 28).** Deferred, unchecked.
+- **Attio CRM deeper integration.** Open for future session if sales pressure increases.
+
+---
+
+## Production testing notes
+
+User tested in production during the session:
+
+- Logged in as `clutz` successfully
+- Hit a transient 500 on one post-login click that was not reproducible — likely mid-deploy of `daea9a5`. Not traced; not recurred.
+- Tested `jpaalsson` sales login; on sign out, hit the 401 JSON blob bug that prompted the logout middleware fix (`b679e81`).
+
+Attribution will be visible the moment Jesper or Greta run their first job in prod.
+
+---
+
+## How to apply
+
+- **When adding new generation workers or agent flows:** add `createdBy` to the request body from the browser (via `window.currentOperator`) and from any server-side forwarder (via `Astro.locals.operator`). Pass it into `createJob` / `createGenerateJob` as the last arg.
+- **When adding new admin API routes that mutate state:** remember `Astro.locals.operator` is available on every non-public route. Use it.
+- **When adding public (pre-auth) API routes:** add the path to `PUBLIC_PATHS` in [admin/src/middleware.ts](../../../../../admin/src/middleware.ts). Logout was the canary for this pattern. Watch for similar gotchas on any future unauthenticated-but-authoritative route.
