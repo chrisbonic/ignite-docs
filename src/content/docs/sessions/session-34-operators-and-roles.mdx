@@ -1,0 +1,95 @@
+---
+title: Session 34 — Operators, roles, and compute strict mode
+description: Multi-operator auth for admin (3 users, 2 roles) and strict tsconfig for compute. Sales role hides the Admin nav section and is blocked server-side from admin routes.
+---
+
+## Commits shipped (2026-04-16)
+
+**parent:**
+
+- `c17b62b` — Session 34: enable strict tsconfig for compute
+
+**admin:**
+
+- `4fe2a91` — Session 34: multi-operator auth with roles
+
+**site:** no change this session
+
+**docs-site:** wrap-up manifest (this file) + archived roadmap entries (none this session)
+
+---
+
+## What shipped
+
+### 1. Compute `strict: true` tsconfig
+
+Flipped `compute/tsconfig.json` from `strict: false` / `strictNullChecks: false` to `strict: true`. Credential-handling surface (KV reads, API tokens, agent workers) now typechecks under full strict. `strictNullChecks`, `noImplicitAny`, and the other flags under the strict umbrella are all active.
+
+**Probe result:** exactly one error surfaced — an untyped `catch` parameter in [compute/lib/feedback-store.ts:259](../../../../../compute/lib/feedback-store.ts#L259). Fixed with `catch (err: unknown)`. The codebase was already defensively written around null returns from KV, so strict mostly formalizes existing discipline and will now catch drift in CI on every push.
+
+The compute CI workflow runs `npm run build` which is `tsc --noEmit` — no CI file changes needed; the new tsconfig is picked up automatically.
+
+### 2. Admin multi-operator auth with roles
+
+New `OPERATORS_JSON` env var holds a JSON array of `{ username, password, role, displayName }` records. Login accepts username + password and signs operator identity into a v2 session token. Legacy `ADMIN_PASSWORD` preserved as fallback — if `OPERATORS_JSON` is unset or malformed, auth falls back to single-password mode. Pre-existing session tokens (`admin:<timestamp>` shape) continue to validate as a synthetic admin operator, so rollout causes zero forced logouts.
+
+**Roles:** `admin` and `sales`. Sales users see only the "Sales" (renamed from "Sales Enablement") and "Agents" nav sections. The "Admin" section is hidden from sales users. Server-side gate in [admin/src/middleware.ts](../../../../../admin/src/middleware.ts) blocks non-admins from `/context`, `/costs`, `/jobs`, `/pages`, `/dev-tools`, `/api/context`, `/api/pages` — page routes redirect to `/`, API routes return 403.
+
+**Account chip:** avatar with initials, display name, and role label rendered above Sign Out in the sidebar.
+
+**Files touched:**
+
+- [admin/src/lib/auth.ts](../../../../../admin/src/lib/auth.ts) — `Operator` / `Role` types, `OPERATORS_JSON` parsing with in-memory cache, `checkCredentials(username, password)`, `createSessionToken(operator)`, `validateSession(token)` returning `Operator | null`
+- [admin/src/middleware.ts](../../../../../admin/src/middleware.ts) — role gating, `Astro.locals.operator` attachment
+- [admin/src/pages/login.astro](../../../../../admin/src/pages/login.astro) — username field added
+- [admin/src/pages/api/auth/login.ts](../../../../../admin/src/pages/api/auth/login.ts) — reads username, calls `checkCredentials`
+- [admin/src/components/AdminNav.astro](../../../../../admin/src/components/AdminNav.astro) — role-filtered sections, "Sales" rename, account chip
+- [admin/src/layouts/AdminLayout.astro](../../../../../admin/src/layouts/AdminLayout.astro) — passes `operator` from `Astro.locals` to nav
+- [admin/src/env.d.ts](../../../../../admin/src/env.d.ts) — new file, types `App.Locals.operator` globally via `declare global`
+- [admin/.env.example](../../../../../admin/.env.example) — documents `OPERATORS_JSON` with a commented 3-user template
+
+**Initial operator list (plaintext passwords in env var — deliberate, see "Security posture" below):**
+
+- `clutz` — admin — Chris Lutz
+- `jpaalsson` — sales — Jesper Paalsson
+- `ggrainda` — sales — Greta Grainda
+
+Verified on local dev: all three users log in, role gating enforced for page routes (redirect) and APIs (403), account chip renders correctly, session fallback to `ADMIN_PASSWORD` confirmed working.
+
+### 3. Senders/operators distinction clarified
+
+Operators (who logs in) and senders (whose name/signature appears on outbound materials) are orthogonal concepts. Operators are a closed list in `OPERATORS_JSON`; senders remain JSON-driven (Session 32) and any operator can pick any sender identity when preparing outreach. Junior demand-gen users can prep materials "on behalf of" senior senders — that's the intended workflow, not a bug.
+
+---
+
+## Security posture (deliberate trade-offs)
+
+- **Passwords are plaintext in an env var**, not hashed. Acceptable for 3-user early-stage admin; "easy to administer, send a password to a new teammate and know it works" was explicit. Migration to hashed passwords is one afternoon of work if security maturity ever matters more.
+- **No per-user audit trail yet.** Job records still use generic `createdBy: 'admin'`. "Light tracking" via `operator.displayName` threaded into job records is deferred (see below).
+- **Astro `checkOrigin` remains `false`** (Session 33 incident). No change to that posture this session.
+
+---
+
+## Not yet validated
+
+- **Production deploy of admin auth.** Shipped locally verified; not yet pushed to Webflow Cloud. Recommended rollout: push code first *without* `OPERATORS_JSON` set in Webflow Cloud env (falls back to `ADMIN_PASSWORD`, zero disruption), then set `OPERATORS_JSON` when ready to give Jesper and Greta credentials.
+- **Production deploy of compute strict.** `c17b62b` not yet pushed; triggers a Vercel rebuild. Behaviorally neutral — build either passes or fails; no runtime delta.
+
+---
+
+## Known deferred
+
+- **`createdBy` wiring** — the "light tracking" win. One-line-per-job changes across `agent-jobs`, `generate-jobs`, and the worker entry points to pass operator display name. Mechanical, bounded, deferred per user direction.
+- **Password rotation flow** — today you edit env var, redeploy, email the person. Fine for 3 users.
+- **Hashed passwords** — see "Security posture." Revisit when the user list grows or a senior joins who needs a durable password reset story.
+- **Session 27 deferred backlog** — dev-tools dashboard, remaining medium ops items. Still untouched.
+- **Attio CRM deeper integration** — on the table for a future session if sales workflow pressure increases.
+
+---
+
+## How to apply
+
+- **New operators:** edit `OPERATORS_JSON` in `admin/.env` locally and in Webflow Cloud's env config. Restart dev (local) or redeploy (production). `.env.example` has the format commented as a template.
+- **New admin-only routes:** add the path prefix to `ADMIN_ONLY_PREFIXES` in [admin/src/middleware.ts](../../../../../admin/src/middleware.ts). Both page and API variants.
+- **New nav sections or items:** edit [admin/src/components/AdminNav.astro](../../../../../admin/src/components/AdminNav.astro) and set `visibleTo: ['admin']` or `['admin', 'sales']` on the section.
+- **Future shared-lib strict mode:** compute already green under strict; admin and site still run under `astro/tsconfigs/strict` (their extended base). If ever flipping those to `strict: true` at the tsconfig root level, run the same probe-first approach — count errors before committing to the scope.

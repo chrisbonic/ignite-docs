@@ -19,6 +19,10 @@ WEBFLOW_PAGES_COLLECTION_ID=<id>
 WEBFLOW_PARTNERS_COLLECTION_ID=<id>
 
 # Admin Auth
+# Preferred: multi-operator mode. JSON array of { username, password, role, displayName }.
+# role must be "admin" or "sales". Sales users see only the Sales + Agents nav sections.
+OPERATORS_JSON=[{"username":"clutz","password":"...","role":"admin","displayName":"Chris Lutz"}]
+# Legacy single-password fallback. Used when OPERATORS_JSON is unset or invalid.
 ADMIN_PASSWORD=<password>
 ADMIN_SECRET=<secret for HMAC session cookies>
 
